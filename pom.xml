@@ -18,6 +18,8 @@
     <url>https://github.com/mufanh/frp.git</url>
 
     <modules>
+        <module>frp-common</module>
+        <module>frp-core</module>
     </modules>
 
     <properties>
@@ -36,6 +38,7 @@
         <guava.version>19.0</guava.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <netty-all.version>4.1.58.Final</netty-all.version>
+        <mapstruct-processor.version>1.4.2.Final</mapstruct-processor.version>
 
         <!-- plugins -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
@@ -46,6 +49,17 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.mufanh</groupId>
+                <artifactId>frp-common</artifactId>
+                <version>${project.package.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.mufanh</groupId>
+                <artifactId>frp-core</artifactId>
+                <version>${project.package.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -93,11 +107,10 @@
                 <artifactId>netty-all</artifactId>
                 <version>${netty-all.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct-processor</artifactId>
-                <version>1.4.2.Final</version>
+                <version>${mapstruct-processor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
