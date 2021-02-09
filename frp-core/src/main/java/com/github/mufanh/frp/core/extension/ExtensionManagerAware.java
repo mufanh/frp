@@ -5,7 +5,7 @@ package com.github.mufanh.frp.core.extension;
  */
 public interface ExtensionManagerAware {
 
-    void setExtensionManager();
+    void setExtensionManager(ExtensionManager extensionManager);
 
     ExtensionManager getExtensionManager();
 }
