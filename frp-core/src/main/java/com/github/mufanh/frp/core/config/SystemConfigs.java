@@ -11,8 +11,15 @@ public enum SystemConfigs {
     /**
      * 扩展插件定义文件路径
      */
-    EXTENSION_DEFINITION_FILE("frp.extension.definition.file", "./extension/paths.definition"),
+    EXTENSION_DEFINITION_FILE("frp.extension.definition.file", "./extension.definition"),
 
+    /**
+     * 线程池默认值
+     */
+    TASK_EXECUTOR_SCHEDULED_POOL_SIZE("frp.executor.scheduled.pool.size", 64),
+    TASK_EXECUTOR_CORE_POOL_SIZE("frp.executor.core.pool.size", 8),
+    TASK_EXECUTOR_MAX_POOL_SIZE("frp.executor.max.pool.size", 1024),
+    TASK_EXECUTOR_KEEP_ALIVE("frp.executor.keepalive", 600L),
     ;
 
     @Getter
@@ -26,7 +33,7 @@ public enum SystemConfigs {
         this.defaultValue = defaultValue;
     }
 
-    public boolean getBool() {
+    public boolean boolValue() {
         Preconditions.checkArgument(defaultValue instanceof Boolean);
 
         String propertyValue = systemPropertyValue();
@@ -35,7 +42,7 @@ public enum SystemConfigs {
                 : Boolean.parseBoolean(propertyValue);
     }
 
-    public Boolean getBoolean() {
+    public Boolean getBool() {
         Preconditions.checkArgument(defaultValue == null
                 || defaultValue instanceof Boolean);
 
@@ -45,7 +52,7 @@ public enum SystemConfigs {
                 : Boolean.parseBoolean(propertyValue);
     }
 
-    public int getInt() {
+    public int intValue() {
         Preconditions.checkArgument(defaultValue instanceof Integer);
 
         String propertyValue = systemPropertyValue();
@@ -54,7 +61,7 @@ public enum SystemConfigs {
                 : Integer.parseInt(propertyValue);
     }
 
-    public Integer getInteger() {
+    public Integer getInt() {
         Preconditions.checkArgument(defaultValue == null
                 || defaultValue instanceof Integer);
 
@@ -64,7 +71,26 @@ public enum SystemConfigs {
                 : Integer.parseInt(propertyValue);
     }
 
-    public String getString() {
+    public long longValue() {
+        Preconditions.checkArgument(defaultValue instanceof Long);
+
+        String propertyValue = systemPropertyValue();
+        return StringUtils.isBlank(propertyValue)
+                ? (long) defaultValue
+                : Long.parseLong(propertyValue);
+    }
+
+    public Long getLong() {
+        Preconditions.checkArgument(defaultValue == null
+                || defaultValue instanceof Long);
+
+        String propertyValue = systemPropertyValue();
+        return StringUtils.isBlank(propertyValue)
+                ? (Long) defaultValue
+                : Long.parseLong(propertyValue);
+    }
+
+    public String stringValue() {
         Preconditions.checkArgument(defaultValue == null
                 || defaultValue instanceof String);
 

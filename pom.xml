@@ -20,6 +20,8 @@
     <modules>
         <module>frp-common</module>
         <module>frp-core</module>
+        <module>frp-plugins</module>
+        <module>frp-agent</module>
     </modules>
 
     <properties>

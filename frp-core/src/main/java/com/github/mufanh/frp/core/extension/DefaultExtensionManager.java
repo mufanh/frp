@@ -5,10 +5,7 @@ import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.SystemConfigs;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.pf4j.DefaultExtensionFinder;
-import org.pf4j.DefaultPluginManager;
-import org.pf4j.ExtensionFinder;
-import org.pf4j.PluginManager;
+import org.pf4j.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +37,6 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         this.pluginPaths = preparePluginPaths();
     }
 
-    @Override
     public void start() throws LifeCycleException {
         super.start();
 
@@ -55,7 +51,6 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         pluginManager.startPlugins();
     }
 
-    @Override
     public void stop() throws LifeCycleException {
         super.stop();
 
@@ -63,7 +58,7 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
     }
 
     private List<Path> preparePluginPaths() {
-        String extensionDefinitionFile = SystemConfigs.EXTENSION_DEFINITION_FILE.getString();
+        String extensionDefinitionFile = SystemConfigs.EXTENSION_DEFINITION_FILE.stringValue();
         if (StringUtils.isBlank(extensionDefinitionFile)) {
             return Collections.emptyList();
         }
@@ -82,5 +77,17 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         } catch (IOException e) {
             throw new RuntimeException("读取扩展插件定义文件失败，加载扩展插件失败.", e);
         }
+    }
+
+    @Override
+    public <T extends ExtensionPoint> List<T> getExtensions(Class<T> type) {
+        ensureStarted();
+        return pluginManager.getExtensions(type);
+    }
+
+    @Override
+    public <T extends ExtensionPoint> List<T> getExtensions(Class<T> type, String pluginId) {
+        ensureStarted();
+        return pluginManager.getExtensions(type, pluginId);
     }
 }

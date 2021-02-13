@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author xinquan.huangxq
  */
-public abstract class AbstractLifeCycle implements LifeCycle {
+public class AbstractLifeCycle implements LifeCycle {
 
     private final AtomicBoolean isStarted = new AtomicBoolean(false);
 
@@ -14,7 +14,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         if (isStarted.compareAndSet(false, true)) {
             return;
         }
-        throw new LifeCycleException("该组件已经启动.");
+        throw new LifeCycleException("该组件已启动");
     }
 
     @Override
@@ -22,7 +22,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         if (isStarted.compareAndSet(true, false)) {
             return;
         }
-        throw new LifeCycleException("该组件已经停止.");
+        throw new LifeCycleException("该组件已停止");
     }
 
     @Override
@@ -30,9 +30,13 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         return isStarted.get();
     }
 
+    /**
+     * ensure the component has been startup before providing service.
+     */
     protected void ensureStarted() {
         if (!isStarted()) {
-            throw new LifeCycleException(String.format("组件(%s)未启动，请启动后再操作!", getClass().getSimpleName()));
+            throw new LifeCycleException(String.format(
+                    "该组件(%s)未启动，请先启动后再操作!", getClass().getSimpleName()));
         }
     }
 }
