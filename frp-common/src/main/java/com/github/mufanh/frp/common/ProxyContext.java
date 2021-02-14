@@ -9,6 +9,18 @@ import lombok.Data;
  */
 @Data
 public class ProxyContext {
+    
+    public static final ProxyContext HEARTBEAT = new ProxyContext();
+
+    /**
+     * 消息msgId
+     */
+    private String msgId;
+
+    /**
+     * 记录原始报文
+     */
+    private String payload;
 
     /**
      * 处理异常

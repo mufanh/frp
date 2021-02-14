@@ -2,6 +2,7 @@ package com.github.mufanh.frp.core;
 
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.extension.ExtensionManagerAware;
+import com.github.mufanh.frp.core.remoting.ProxyFutureManagerAware;
 import com.github.mufanh.frp.core.task.TaskExecutorAware;
 
 /**
@@ -9,7 +10,10 @@ import com.github.mufanh.frp.core.task.TaskExecutorAware;
  *
  * @author xinquan.huangxq
  */
-public interface FrpContext extends ExtensionManagerAware, TaskExecutorAware, LifeCycle {
+public interface FrpContext extends ExtensionManagerAware
+        , TaskExecutorAware
+        , ProxyFutureManagerAware
+        , LifeCycle {
 
     void addProxyService(ProxyConfig proxyConfig);
 }
