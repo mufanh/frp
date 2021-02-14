@@ -108,11 +108,11 @@ public class AbstractConnectionFactory extends AbstractLifeCycle implements Conn
         if (lowWaterMark == null && highWaterMark == null) {
             return;
         } else if (lowWaterMark == null || highWaterMark == null) {
-            throw new IllegalStateException("NETTY高低水位必须同时设置，否则使用默认值不显示设置");
+            throw new IllegalStateException("NETTY Client高低水位必须同时设置，否则使用默认值不显示设置");
         } else if (lowWaterMark > highWaterMark) {
-            throw new IllegalArgumentException("NETTY高低水位设置不正确");
+            throw new IllegalArgumentException("NETTY Client高低水位设置不正确");
         } else {
-            log.warn("NETTY高低水位设置：high={}，low={}", highWaterMark, lowWaterMark);
+            log.warn("NETTY Client高低水位设置：high={}，low={}", highWaterMark, lowWaterMark);
         }
         this.bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
                 new WriteBufferWaterMark(lowWaterMark, highWaterMark));

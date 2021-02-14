@@ -6,11 +6,13 @@ import com.github.mufanh.frp.common.ProxyException;
 import com.github.mufanh.frp.core.FrpContext;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author xinquan.huangxq
  */
+@Slf4j
 public class BackendProxyHandler extends ChannelDuplexHandler {
 
     private final ProxyFutureManager proxyFutureManager;

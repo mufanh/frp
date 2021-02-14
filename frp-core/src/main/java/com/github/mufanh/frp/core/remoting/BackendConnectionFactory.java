@@ -10,9 +10,6 @@ import com.sun.istack.internal.NotNull;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
 
 /**
  * @author xinquan.huangxq
@@ -45,11 +42,9 @@ public class BackendConnectionFactory extends AbstractConnectionFactory {
     @NotNull
     private static Codec prepareCodec(ProxyConfig proxyConfig, FrpContext frpContext) {
         ExtensionManager extensionManager = frpContext.getExtensionManager();
-        List<Codec> codecs = extensionManager.getExtensions(Codec.class, proxyConfig.getCodecPluginId());
-        for (Codec codec : codecs) {
-            if (StringUtils.equals(codec.getClass().getName(), proxyConfig.getCodecType())) {
-                return codec;
-            }
+        Codec codec = extensionManager.codec(proxyConfig.getCodecType(), proxyConfig.getCodecPluginId());
+        if (codec != null) {
+            return codec;
         }
         throw new IllegalArgumentException("未找到代理服务的编码、解码器");
     }

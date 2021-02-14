@@ -12,9 +12,23 @@ public class ProxyConfig {
 
     private String protocol;
 
+    private String ip;
+
+    private int port;
+
     private String codecPluginId;
 
     private String codecType;
+
+    private Integer frontendTcpSoSndBuf;
+
+    private Integer frontendTcpSoRcvBuf;
+
+    private Integer frontendNettyBufferHighWatermark;
+
+    private Integer frontendNettyBufferLowWatermark;
+
+    private Integer frontendAccessIdleTime;
 
     private Integer backendNettyBufferHighWatermark;
 

@@ -1,5 +1,6 @@
 package com.github.mufanh.frp.core.extension;
 
+import com.github.mufanh.frp.common.extension.Codec;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.SystemConfigs;
@@ -77,6 +78,17 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         } catch (IOException e) {
             throw new RuntimeException("读取扩展插件定义文件失败，加载扩展插件失败.", e);
         }
+    }
+
+    @Override
+    public Codec codec(String type, String pluginId) {
+        List<Codec> codecs = getExtensions(Codec.class, pluginId);
+        for (Codec codec : codecs) {
+            if (StringUtils.equals(codec.getClass().getName(), type)) {
+                return codec;
+            }
+        }
+        return null;
     }
 
     @Override
