@@ -64,11 +64,11 @@ public class AbstractConnectionFactory extends AbstractLifeCycle implements Conn
     }
 
     @Override
-    public Connection createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
+    public Channel createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
         ensureStarted();
 
         Channel channel = doCreateConnection(targetIP, targetPort, connectTimeout);
-        return new Connection(channel);
+        return channel;
     }
 
     protected Channel doCreateConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {

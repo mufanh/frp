@@ -13,6 +13,8 @@ public enum SystemConfigs {
      */
     EXTENSION_DEFINITION_FILE("frp.extension.definition.file", "./extension.definition"),
 
+    FRONTEND_ACCESS_IDLE_TIME("frp.frontend.access.idle.time", 60),
+
     BACKEND_READ_IDLE_TIME("frp.backend.read.idle.time", 10),
     BACKEND_WRITE_IDLE_TIME("frp.backend.write.idle.time", 5),
     BACKEND_ACCESS_IDLE_TIME("frp.backend.access.idle.time", 3),

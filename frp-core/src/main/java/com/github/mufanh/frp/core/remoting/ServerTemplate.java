@@ -9,6 +9,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,13 @@ public abstract class ServerTemplate extends AbstractLifeCycle {
     private final ServerBootstrap bootstrap = new ServerBootstrap();
 
     private ChannelFuture channelFuture;
+
+    static {
+        if (workerGroup instanceof NioEventLoopGroup) {
+            ((NioEventLoopGroup) workerGroup).setIoRatio(SystemConfigs.NETTY_IO_RATIO.intValue());
+        }
+    }
+
 
     public ServerTemplate(ConfigFeature configFeature, String ip, int port, ChannelInitializer<SocketChannel> channelInitializer) {
         this.configFeature = configFeature;

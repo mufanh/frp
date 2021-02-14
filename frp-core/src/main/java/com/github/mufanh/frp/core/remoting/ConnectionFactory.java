@@ -1,5 +1,7 @@
 package com.github.mufanh.frp.core.remoting;
 
+import io.netty.channel.Channel;
+
 /**
  * 创建连接工厂（NETTY客户端）
  *
@@ -21,5 +23,5 @@ public interface ConnectionFactory {
      * @return
      * @throws Exception
      */
-    Connection createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception;
+    Channel createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception;
 }

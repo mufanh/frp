@@ -4,8 +4,10 @@ import com.github.mufanh.frp.common.extension.Codec;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.config.ConfigFeature;
 import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.SystemConfigs;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
 import com.sun.istack.internal.NotNull;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -13,15 +15,15 @@ import io.netty.handler.timeout.IdleStateHandler;
 /**
  * @author xinquan.huangxq
  */
-public class FrontendProxyService extends ServerTemplate {
+public class FrontendProxyServer extends ServerTemplate {
 
-    public FrontendProxyService(ProxyConfig proxyConfig, FrpContext frpContext) {
+    public FrontendProxyServer(ProxyConfig proxyConfig, FrpContext frpContext) {
         super(prepareConfigFeature(proxyConfig), proxyConfig.getIp(), proxyConfig.getPort(), prepareChannelInitializer(proxyConfig, frpContext));
     }
 
     private static ChannelInitializer<SocketChannel> prepareChannelInitializer(ProxyConfig proxyConfig, FrpContext frpContext) {
         IdleStateHandler idleStateHandler = new IdleStateHandler(
-                0, 0, proxyConfig.getFrontendAccessIdleTime());
+                0, 0, prepareFrontendAccessIdleTime(proxyConfig));
         Codec codec = prepareCodec(proxyConfig, frpContext);
         return new ChannelInitializer<SocketChannel>() {
             @Override
@@ -29,8 +31,14 @@ public class FrontendProxyService extends ServerTemplate {
                 channel.pipeline().addLast("idleHandler", idleStateHandler)
                         .addLast("encoder", codec.newEncoder())
                         .addLast("decoder", codec.newDecoder())
-                        .addLast("", new FrontendConnectHandler())
+                        .addLast("connectionHandler", new FrontendConnectHandler(frpContext))
                         .addLast("proxyHandler", new FrontendProxyHandler(frpContext));
+
+                createConnection(channel);
+            }
+
+            private void createConnection(Channel channel) {
+                new Connection(channel);
             }
         };
     }
@@ -43,6 +51,12 @@ public class FrontendProxyService extends ServerTemplate {
             return codec;
         }
         throw new IllegalArgumentException("未找到代理服务的编码、解码器");
+    }
+
+    private static int prepareFrontendAccessIdleTime(ProxyConfig proxyConfig) {
+        return proxyConfig.getFrontendAccessIdleTime() == null
+                ? SystemConfigs.FRONTEND_ACCESS_IDLE_TIME.intValue()
+                : proxyConfig.getFrontendAccessIdleTime();
     }
 
     private static ConfigFeature prepareConfigFeature(ProxyConfig proxyConfig) {

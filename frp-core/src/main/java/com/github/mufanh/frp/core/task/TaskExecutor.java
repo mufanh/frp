@@ -31,4 +31,11 @@ public interface TaskExecutor {
      * @param task
      */
     void execute(final ProxyContext context, final Task task);
+
+    interface Aware {
+
+        void setTaskExecutor(TaskExecutor taskExecutor);
+
+        TaskExecutor getTaskExecutor();
+    }
 }

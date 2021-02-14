@@ -20,6 +20,8 @@ public class ProxyConfig {
 
     private String codecType;
 
+    private long timeout;
+
     private Integer frontendTcpSoSndBuf;
 
     private Integer frontendTcpSoRcvBuf;

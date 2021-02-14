@@ -38,4 +38,11 @@ public interface ExtensionManager extends LifeCycle {
      * @return
      */
     <T extends ExtensionPoint> List<T> getExtensions(Class<T> type, String pluginId);
+
+    interface Aware {
+
+        void setExtensionManager(ExtensionManager extensionManager);
+
+        ExtensionManager getExtensionManager();
+    }
 }
