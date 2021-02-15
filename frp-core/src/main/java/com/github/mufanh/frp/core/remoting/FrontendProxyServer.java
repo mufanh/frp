@@ -6,8 +6,6 @@ import com.github.mufanh.frp.core.config.ConfigFeature;
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.config.SystemConfigs;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
-import com.sun.istack.internal.NotNull;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -15,29 +13,28 @@ import io.netty.handler.timeout.IdleStateHandler;
 /**
  * @author xinquan.huangxq
  */
-public class FrontendProxyNettyServer extends NettyServerTemplate {
+public class FrontendProxyServer extends NettyServerTemplate {
 
-    public FrontendProxyNettyServer(ProxyConfig proxyConfig, FrpContext frpContext) {
+    public FrontendProxyServer(ProxyConfig proxyConfig, FrpContext frpContext) {
         super(prepareConfigFeature(proxyConfig), proxyConfig.getIp(), proxyConfig.getPort(), prepareChannelInitializer(proxyConfig, frpContext));
     }
 
     private static ChannelInitializer<SocketChannel> prepareChannelInitializer(ProxyConfig proxyConfig, FrpContext frpContext) {
-        IdleStateHandler idleStateHandler = new IdleStateHandler(
-                0, 0, prepareFrontendAccessIdleTime(proxyConfig));
         Codec codec = prepareCodec(proxyConfig, frpContext);
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) throws Exception {
-                channel.pipeline().addLast("idleHandler", idleStateHandler)
+                channel.pipeline().addLast("idleHandler", new IdleStateHandler(
+                        0, 0, prepareFrontendAccessIdleTime(proxyConfig)))
                         .addLast("encoder", codec.newEncoder())
                         .addLast("decoder", codec.newDecoder())
+                        .addLast("context", new EnrichProxyContextHandler(proxyConfig))
                         .addLast("connectionHandler", new FrontendConnectHandler(frpContext))
                         .addLast("proxyHandler", new FrontendProxyHandler(frpContext));
             }
         };
     }
 
-    @NotNull
     private static Codec prepareCodec(ProxyConfig proxyConfig, FrpContext frpContext) {
         ExtensionManager extensionManager = frpContext.getExtensionManager();
         Codec codec = extensionManager.codec(proxyConfig.getCodecType(), proxyConfig.getCodecPluginId());

@@ -41,6 +41,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <netty-all.version>4.1.58.Final</netty-all.version>
         <mapstruct-processor.version>1.4.2.Final</mapstruct-processor.version>
+        <jackson-databind.version>2.11.4</jackson-databind.version>
 
         <!-- plugins -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
@@ -113,6 +114,12 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct-processor.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson-databind.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

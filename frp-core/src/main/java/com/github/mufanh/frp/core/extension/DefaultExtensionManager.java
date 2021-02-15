@@ -37,6 +37,9 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
             }
         };
         this.pluginPaths = preparePluginPaths();
+
+        // 初始化后直接启动
+        start();
     }
 
     public void start() throws LifeCycleException {

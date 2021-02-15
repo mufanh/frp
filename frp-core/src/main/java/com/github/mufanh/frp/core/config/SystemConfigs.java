@@ -30,6 +30,8 @@ public enum SystemConfigs {
 
     DEFAULT_LOAD_BALANCE("frp.default.load.balance", RandomLoadBalance.class.getName()),
 
+    BACKEND_TRY_CONNECT_TIMES("frp.backend.try.connect.times", 3),
+
     /**
      * NETTY参数
      */
@@ -123,9 +125,13 @@ public enum SystemConfigs {
                 || defaultValue instanceof Boolean);
 
         String propertyValue = systemPropertyValue();
-        return StringUtils.isBlank(propertyValue)
-                ? (Boolean) defaultValue
-                : Boolean.parseBoolean(propertyValue);
+        if (StringUtils.isBlank(propertyValue)) {
+            if (defaultValue == null) {
+                return null;
+            }
+            return (Boolean) defaultValue;
+        }
+        return Boolean.parseBoolean(propertyValue);
     }
 
     public int intValue() {
@@ -142,9 +148,13 @@ public enum SystemConfigs {
                 || defaultValue instanceof Integer);
 
         String propertyValue = systemPropertyValue();
-        return StringUtils.isBlank(propertyValue)
-                ? (Integer) defaultValue
-                : Integer.parseInt(propertyValue);
+        if (StringUtils.isBlank(propertyValue)) {
+            if (defaultValue == null) {
+                return null;
+            }
+            return (Integer) defaultValue;
+        }
+        return Integer.parseInt(propertyValue);
     }
 
     public long longValue() {
@@ -161,9 +171,13 @@ public enum SystemConfigs {
                 || defaultValue instanceof Long);
 
         String propertyValue = systemPropertyValue();
-        return StringUtils.isBlank(propertyValue)
-                ? (Long) defaultValue
-                : Long.parseLong(propertyValue);
+        if (StringUtils.isBlank(propertyValue)) {
+            if (defaultValue == null) {
+                return null;
+            }
+            return (Long) defaultValue;
+        }
+        return Long.parseLong(propertyValue);
     }
 
     public String stringValue() {

@@ -26,6 +26,12 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
         }
 
         ProxyContext context = (ProxyContext) msg;
+
+        // 心跳响应
+        if (context.isHeartBeat()) {
+            return;
+        }
+
         if (StringUtils.isBlank(context.getMsgId())) {
             throw new ProxyException(ErrCode.PROXY_BACKEND_ERROR, "代理服务响应报文不合法，丢失消息唯一标识");
         }

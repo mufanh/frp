@@ -27,6 +27,10 @@ public class TaskConfig {
         this.taskExecutorKeepalive = taskExecutorKeepalive;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder {
 
         private Integer scheduledTaskExecutorPoolSize;

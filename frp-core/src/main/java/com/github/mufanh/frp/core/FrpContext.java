@@ -2,10 +2,7 @@ package com.github.mufanh.frp.core;
 
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
-import com.github.mufanh.frp.core.remoting.ConnectionFactory;
-import com.github.mufanh.frp.core.remoting.ConnectionManager;
-import com.github.mufanh.frp.core.remoting.InvokeManager;
-import com.github.mufanh.frp.core.remoting.ProxyInvokeService;
+import com.github.mufanh.frp.core.remoting.*;
 import com.github.mufanh.frp.core.service.ChannelChooseService;
 import com.github.mufanh.frp.core.service.ChannelHealthCheck;
 import com.github.mufanh.frp.core.service.ProxyRouteService;
@@ -26,6 +23,7 @@ public interface FrpContext extends LifeCycle
         , ChannelChooseService.Aware
         , ProxySelectService.Aware
         , ChannelHealthCheck.Aware
+        , BackendTryConnectManager.Aware
         , ExtensionManager.Aware {
 
     void addProxyService(ProxyConfig proxyConfig);

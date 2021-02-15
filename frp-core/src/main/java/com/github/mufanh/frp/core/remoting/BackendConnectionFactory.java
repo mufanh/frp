@@ -6,7 +6,6 @@ import com.github.mufanh.frp.core.config.ConfigFeature;
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.config.SystemConfigs;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
-import com.sun.istack.internal.NotNull;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -21,25 +20,23 @@ public class BackendConnectionFactory extends AbstractConnectionFactory {
     }
 
     private static ChannelInitializer<SocketChannel> prepareChannelInitializer(ProxyConfig proxyConfig, FrpContext frpContext) {
-        IdleStateHandler idleStateHandler = new IdleStateHandler(
-                prepareBackendReadIdleTime(proxyConfig),
-                prepareBackendWriteIdleTime(proxyConfig),
-                prepareBackendAccessIdleTime(proxyConfig));
         Codec codec = prepareCodec(proxyConfig, frpContext);
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) throws Exception {
                 channel.pipeline()
-                        .addLast("idleHandler", idleStateHandler)
+                        .addLast("idleHandler", new IdleStateHandler(
+                                prepareBackendReadIdleTime(proxyConfig),
+                                prepareBackendWriteIdleTime(proxyConfig),
+                                prepareBackendAccessIdleTime(proxyConfig)))
                         .addLast("encoder", codec.newEncoder())
                         .addLast("decoder", codec.newDecoder())
-                        .addLast("connectionHandler", new BackendConnectHandler())
+                        .addLast("connectionHandler", new BackendConnectHandler(frpContext, proxyConfig))
                         .addLast("proxyHandler", new BackendProxyHandler(frpContext));
             }
         };
     }
 
-    @NotNull
     private static Codec prepareCodec(ProxyConfig proxyConfig, FrpContext frpContext) {
         ExtensionManager extensionManager = frpContext.getExtensionManager();
         Codec codec = extensionManager.codec(proxyConfig.getCodecType(), proxyConfig.getCodecPluginId());

@@ -30,13 +30,17 @@ public class AbstractLifeCycle implements LifeCycle {
         return isStarted.get();
     }
 
-    /**
-     * ensure the component has been startup before providing service.
-     */
     protected void ensureStarted() {
         if (!isStarted()) {
             throw new LifeCycleException(String.format(
                     "该组件(%s)未启动，请先启动后再操作!", getClass().getSimpleName()));
+        }
+    }
+
+    protected void ensureNotStarted() {
+        if (isStarted()) {
+            throw new LifeCycleException(String.format(
+                    "该组件(%s)已经启动，请先停止后再操作!", getClass().getSimpleName()));
         }
     }
 }

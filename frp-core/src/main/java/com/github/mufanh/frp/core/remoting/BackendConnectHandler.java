@@ -1,6 +1,11 @@
 package com.github.mufanh.frp.core.remoting;
 
+import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.FrpContext;
+import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.google.common.collect.Table;
 import io.netty.channel.*;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.timeout.IdleState;
@@ -8,6 +13,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author xinquan.huangxq
@@ -15,6 +21,16 @@ import java.io.IOException;
 @ChannelHandler.Sharable
 @Slf4j
 public class BackendConnectHandler extends ChannelDuplexHandler {
+
+    private final FrpContext frpContext;
+    private final String appName;
+    private final String protocol;
+
+    public BackendConnectHandler(FrpContext frpContext, ProxyConfig proxyConfig) {
+        this.frpContext = frpContext;
+        this.appName = proxyConfig.getAppName();
+        this.protocol = proxyConfig.getProtocol();
+    }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
@@ -76,6 +92,25 @@ public class BackendConnectHandler extends ChannelDuplexHandler {
     }
 
     private void retryConnect(Channel channel) {
+        ConnectionManager connectionManager = frpContext.getConnectionManager();
+        if (connectionManager == null) {
+            log.error("连接管理器不存在，无法发起重连");
+            return;
+        }
 
+        Address address = connectionManager.removeBackendChannel(channel);
+        if (address != null) {
+            Table<String/*appName*/, String/*protocol*/, Set<Address>> table =
+                    RouteRuleConfig.getInstance().getAvailableAddresses();
+            Set<Address> availableAddresses = table.get(appName, protocol);
+            if (availableAddresses != null && availableAddresses.contains(address)) {
+                BackendTryConnectManager backendTryConnectManager = frpContext.getBackendTryConnectManager();
+                if (backendTryConnectManager == null) {
+                    log.error("重连管理器不存在，无法发起重连");
+                    return;
+                }
+                backendTryConnectManager.tryConnect(appName, protocol, address);
+            }
+        }
     }
 }

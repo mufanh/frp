@@ -31,7 +31,11 @@ public interface ConnectionManager {
 
     void addBackendChannel(Address address, Channel channel);
 
-    Channel removeBackendChannel(Address address);
+    void removeBackendChannel(Address address);
+
+    void removeBackendChannelWithoutClose(Address address);
+
+    Address removeBackendChannel(Channel channel);
 
     Channel getBackendChannel(Address address);
 

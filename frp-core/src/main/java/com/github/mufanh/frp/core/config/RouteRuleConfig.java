@@ -1,18 +1,17 @@
 package com.github.mufanh.frp.core.config;
 
 import com.github.mufanh.frp.common.Address;
+import com.github.mufanh.frp.common.Rule;
 import com.github.mufanh.frp.common.RuleGroup;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
@@ -22,15 +21,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RouteRuleConfig {
 
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
     // 整体进行替换，运行过程中会重新构造
-    private final AtomicReference<Table<String/*appName*/, String/*protocol*/, List<RuleGroup>>> configReference
-            = new AtomicReference<>();
+    private Table<String/*appName*/, String/*protocol*/, List<RuleGroup>> config;
 
     // 分批进行替换
     // 仅启动时候会加载初始化一次
     private final Table<String/*appName*/, String/*protocol*/, List<Address>> defaultConfig = HashBasedTable.create();
-    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-
 
     public void setDefaultConfig(String appName, String protocol, List<Address> addresses) {
         if (StringUtils.isBlank(appName)
@@ -52,7 +50,7 @@ public class RouteRuleConfig {
     }
 
     public List<Address> getDefaultConfig(String appName, String protocol) {
-        if (StringUtils.isBlank(appName) || StringUtils.isNotBlank(protocol)) {
+        if (StringUtils.isBlank(appName) || StringUtils.isBlank(protocol)) {
             return Collections.emptyList();
         }
         try {
@@ -73,32 +71,102 @@ public class RouteRuleConfig {
     }
 
     public List<RuleGroup> getConfig(String appName, String protocol) {
-        Table<String, String, List<RuleGroup>> config = configReference.get();
-        if (config == null) {
-            return Collections.emptyList();
+        try {
+            rwl.readLock().lock();
+
+            if (config == null) {
+                return Collections.emptyList();
+            }
+
+            List<RuleGroup> result = config.get(appName, protocol);
+            if (result == null) {
+                return Collections.emptyList();
+            }
+
+            return result;
+        } finally {
+            rwl.readLock().unlock();
         }
-        List<RuleGroup> result = config.get(appName, protocol);
-        if (result == null) {
-            return Collections.emptyList();
-        }
-        return result;
     }
 
     public void setConfig(List<RuleGroup> ruleGroups) {
-        if (CollectionUtils.isEmpty(ruleGroups)) {
-            configReference.set(null);
-            return;
+        try {
+            rwl.writeLock().lock();
+
+            if (CollectionUtils.isEmpty(ruleGroups)) {
+                config = null;
+                return;
+            }
+        } finally {
+            rwl.writeLock().unlock();
         }
-        Table<String, String, List<RuleGroup>> config = HashBasedTable.create();
+
+        Table<String, String, List<RuleGroup>> tmpConfig = HashBasedTable.create();
         for (RuleGroup ruleGroup : ruleGroups) {
-            List<RuleGroup> groups = config.get(ruleGroup.getAppName(), ruleGroup.getProtocol());
+            List<RuleGroup> groups = tmpConfig.get(ruleGroup.getAppName(), ruleGroup.getProtocol());
             if (groups == null) {
                 groups = new ArrayList<>();
-                config.put(ruleGroup.getAppName(), ruleGroup.getProtocol(), groups);
+                tmpConfig.put(ruleGroup.getAppName(), ruleGroup.getProtocol(), groups);
             }
             groups.add(ruleGroup);
         }
-        configReference.set(config);
+
+        try {
+            rwl.writeLock().lock();
+            config = tmpConfig;
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /**
+     * 获取需要发起主动连接的地址列表
+     *
+     * @return
+     */
+    public Table<String/*appName*/, String/*protocol*/, Set<Address>> getAvailableAddresses() {
+        try {
+            rwl.readLock().lock();
+
+            Table<String, String, Set<Address>> result = HashBasedTable.create();
+
+            if (config != null) {
+                for (Table.Cell<String, String, List<RuleGroup>> cell : config.cellSet()) {
+                    Set<Address> addresses = result.get(cell.getRowKey(), cell.getColumnKey());
+                    if (addresses == null) {
+                        addresses = Sets.newHashSet();
+                        result.put(cell.getRowKey(), cell.getColumnKey(), addresses);
+                    }
+                    addresses.addAll(Optional.ofNullable(cell.getValue())
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .filter(ruleGroup -> ruleGroup.getDefaultCluster() != null)
+                            .flatMap(ruleGroup -> ruleGroup.getDefaultCluster().getAddresses().stream())
+                            .collect(Collectors.toSet()));
+                    addresses.addAll(Optional.ofNullable(cell.getValue())
+                            .orElse(Collections.emptyList())
+                            .stream()
+                            .flatMap(ruleGroup -> ruleGroup.getRules().stream())
+                            .flatMap(rule -> rule.getCluster().getAddresses().stream())
+                            .collect(Collectors.toSet()));
+                }
+            }
+
+            // 代码配置级别的默认地址列表
+            for (Table.Cell<String, String, List<Address>> cell : defaultConfig.cellSet()) {
+                Set<Address> addresses = result.get(cell.getRowKey(), cell.getColumnKey());
+                if (addresses == null) {
+                    addresses = Sets.newHashSet();
+                    result.put(cell.getRowKey(), cell.getColumnKey(), addresses);
+                }
+                addresses.addAll(Optional.ofNullable(cell.getValue())
+                        .orElse(Collections.emptyList()));
+            }
+
+            return result;
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     public static RouteRuleConfig getInstance() {

@@ -62,6 +62,9 @@ public class DefaultChannelChooseService extends AbstractLifeCycle implements Ch
                     .filter(address -> channelHealthCheck.check(context, address))
                     .collect(Collectors.toList());
         }
+        if (CollectionUtils.isEmpty(checkedAddresses)) {
+            return ChooseResult.error("地址列表没有有效的连接");
+        }
 
         LoadBalance loadBalance = prepareLoadBalance(context);
         if (loadBalance == null) {

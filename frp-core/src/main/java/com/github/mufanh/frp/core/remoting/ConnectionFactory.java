@@ -1,5 +1,6 @@
 package com.github.mufanh.frp.core.remoting;
 
+import com.github.mufanh.frp.core.LifeCycle;
 import io.netty.channel.Channel;
 
 /**
@@ -7,7 +8,7 @@ import io.netty.channel.Channel;
  *
  * @author xinquan.huangxq
  */
-public interface ConnectionFactory {
+public interface ConnectionFactory extends LifeCycle {
 
     class FeatureKeys {
         public static final String NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";

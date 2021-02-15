@@ -40,7 +40,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
 
     public void invoke(final ProxyContext context) throws ProxyException {
         ensureStarted();
-        
+
         RouteResult routeResult = proxyRouteService.route(context);
         if (!routeResult.isSuccess()) {
             throw new ProxyException(ErrCode.PROXY_NONE_SERVICE, "服务代理找不到可用的服务主机");
@@ -55,7 +55,6 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
             sendToBackendChannel(channel, context);
             return;
         }
-
     }
 
     private void sendToBackendChannel(Channel channel, ProxyContext context) {

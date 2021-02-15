@@ -23,7 +23,22 @@
     </properties>
 
     <modules>
+        <module>frp-codec-plugins</module>
     </modules>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mufanh</groupId>
+            <artifactId>frp-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

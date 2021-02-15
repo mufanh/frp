@@ -1,11 +1,12 @@
 package com.github.mufanh.frp.core.task;
 
 import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.LifeCycle;
 
 /**
  * @author xinquan.huangxq
  */
-public interface TaskExecutor {
+public interface TaskExecutor extends LifeCycle {
 
     /**
      * 立即执行任务，如果线程池满，直接拒绝执行

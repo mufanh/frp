@@ -26,6 +26,10 @@ public class DefaultTaskExecutor extends AbstractLifeCycle implements TaskExecut
         this.config = config;
     }
 
+    public DefaultTaskExecutor() {
+        this.config = TaskConfig.builder().build();
+    }
+
     @Override
     public void start() throws LifeCycleException {
         super.start();

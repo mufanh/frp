@@ -1,7 +1,10 @@
 package com.github.mufanh.frp.core.config;
 
+import com.github.mufanh.frp.common.Address;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author xinquan.huangxq
@@ -56,4 +59,9 @@ public class ProxyConfig {
      * Backend独写空闲时间（秒）
      */
     private Integer backendAccessIdleTime;
+
+    /**
+     * 默认服务列表
+     */
+    private List<Address> defaultAddresses;
 }

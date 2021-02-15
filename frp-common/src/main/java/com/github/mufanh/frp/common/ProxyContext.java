@@ -18,6 +18,11 @@ public class ProxyContext {
          * loadBalanceType@loadBalanceId，若没有@，则认为是null
          */
         public static final String LOAD_BALANCE = "__LOAD_BALANCE";
+
+        /**
+         * 上游IP地址
+         */
+        public static final String IP = "__IP";
     }
 
     public static final ProxyContext HEARTBEAT = new ProxyContext(true);
