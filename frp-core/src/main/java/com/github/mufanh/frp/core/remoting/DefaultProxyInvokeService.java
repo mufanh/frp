@@ -1,7 +1,9 @@
 package com.github.mufanh.frp.core.remoting;
 
 import com.github.mufanh.frp.common.*;
+import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.FrpContext;
+import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.service.ProxyRouteService;
 import com.github.mufanh.frp.core.service.RouteResult;
@@ -13,24 +15,32 @@ import lombok.extern.slf4j.Slf4j;
  * @author xinquan.huangxq
  */
 @Slf4j
-public class DefaultProxyInvokeService implements ProxyInvokeService {
+public class DefaultProxyInvokeService extends AbstractLifeCycle implements ProxyInvokeService {
 
     private final FrpContext frpContext;
 
-    private final ProxyRouteService proxyRouteService;
+    private ProxyRouteService proxyRouteService;
 
-    private final ConnectionManager connectionManager;
+    private ConnectionManager connectionManager;
 
-    private final InvokeManager invokeManager;
+    private InvokeManager invokeManager;
 
     public DefaultProxyInvokeService(final FrpContext frpContext) {
         this.frpContext = frpContext;
-        this.proxyRouteService = frpContext.getProxyRouteService();
-        this.connectionManager = frpContext.getConnectionManager();
-        this.invokeManager = frpContext.getInvokeManager();
+    }
+
+    @Override
+    public void start() throws LifeCycleException {
+        super.start();
+
+        proxyRouteService = frpContext.getProxyRouteService();
+        connectionManager = frpContext.getConnectionManager();
+        invokeManager = frpContext.getInvokeManager();
     }
 
     public void invoke(final ProxyContext context) throws ProxyException {
+        ensureStarted();
+        
         RouteResult routeResult = proxyRouteService.route(context);
         if (!routeResult.isSuccess()) {
             throw new ProxyException(ErrCode.PROXY_NONE_SERVICE, "服务代理找不到可用的服务主机");

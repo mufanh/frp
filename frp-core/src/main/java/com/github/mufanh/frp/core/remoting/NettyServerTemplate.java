@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
  * @author xinquan.huangxq
  */
 @Slf4j
-public abstract class ServerTemplate extends AbstractLifeCycle {
+public abstract class NettyServerTemplate extends AbstractLifeCycle {
 
     public static class FeatureKeys {
         public static final String TCP_SO_SNDBUF = "TCP_SO_SNDBUF";
@@ -59,7 +59,7 @@ public abstract class ServerTemplate extends AbstractLifeCycle {
     }
 
 
-    public ServerTemplate(ConfigFeature configFeature, String ip, int port, ChannelInitializer<SocketChannel> channelInitializer) {
+    public NettyServerTemplate(ConfigFeature configFeature, String ip, int port, ChannelInitializer<SocketChannel> channelInitializer) {
         this.configFeature = configFeature;
         this.ip = ip;
         this.port = port;

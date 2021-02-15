@@ -15,10 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class BackendProxyHandler extends ChannelDuplexHandler {
 
-    private final ProxyFutureManager proxyFutureManager;
 
     public BackendProxyHandler(final FrpContext frpContext) {
-        this.proxyFutureManager = frpContext.getProxyFutureManager();
     }
 
     @Override
@@ -31,9 +29,5 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
         if (StringUtils.isBlank(context.getMsgId())) {
             throw new ProxyException(ErrCode.PROXY_BACKEND_ERROR, "代理服务响应报文不合法，丢失消息唯一标识");
         }
-
-        ProxyFuture proxyFuture = proxyFutureManager.removeProxyFuture(context.getMsgId());
-        proxyFuture.cancelTimeout();
-        proxyFuture.putResponse(context);
     }
 }

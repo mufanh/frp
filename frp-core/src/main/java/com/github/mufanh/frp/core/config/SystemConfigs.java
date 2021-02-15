@@ -1,5 +1,6 @@
 package com.github.mufanh.frp.core.config;
 
+import com.github.mufanh.frp.core.extension.buildin.loadbalance.RandomLoadBalance;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,8 @@ public enum SystemConfigs {
     TASK_EXECUTOR_CORE_POOL_SIZE("frp.executor.core.pool.size", 8),
     TASK_EXECUTOR_MAX_POOL_SIZE("frp.executor.max.pool.size", 1024),
     TASK_EXECUTOR_KEEP_ALIVE("frp.executor.keepalive", 600L),
+
+    DEFAULT_LOAD_BALANCE("frp.default.load.balance", RandomLoadBalance.class.getName()),
 
     /**
      * NETTY参数

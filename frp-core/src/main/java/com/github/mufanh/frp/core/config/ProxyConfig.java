@@ -1,11 +1,13 @@
 package com.github.mufanh.frp.core.config;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * @author xinquan.huangxq
  */
 @Data
+@Builder
 public class ProxyConfig {
 
     private String appName;
@@ -19,6 +21,10 @@ public class ProxyConfig {
     private String codecPluginId;
 
     private String codecType;
+
+    private String loadBalancePluginId;
+
+    private String loadBalanceType;
 
     private long timeout;
 

@@ -1,6 +1,7 @@
 package com.github.mufanh.frp.core.extension;
 
 import com.github.mufanh.frp.common.extension.Codec;
+import com.github.mufanh.frp.common.extension.LoadBalance;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.SystemConfigs;
@@ -86,6 +87,17 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         for (Codec codec : codecs) {
             if (StringUtils.equals(codec.getClass().getName(), type)) {
                 return codec;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public LoadBalance loadBalance(String type, String pluginId) {
+        List<LoadBalance> loadBalances = getExtensions(LoadBalance.class, pluginId);
+        for (LoadBalance loadBalance : loadBalances) {
+            if (StringUtils.equals(loadBalance.getClass().getName(), type)) {
+                return loadBalance;
             }
         }
         return null;

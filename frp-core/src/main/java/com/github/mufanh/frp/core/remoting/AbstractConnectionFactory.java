@@ -67,8 +67,7 @@ public class AbstractConnectionFactory extends AbstractLifeCycle implements Conn
     public Channel createConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {
         ensureStarted();
 
-        Channel channel = doCreateConnection(targetIP, targetPort, connectTimeout);
-        return channel;
+        return doCreateConnection(targetIP, targetPort, connectTimeout);
     }
 
     protected Channel doCreateConnection(String targetIP, int targetPort, int connectTimeout) throws Exception {

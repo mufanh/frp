@@ -15,9 +15,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 /**
  * @author xinquan.huangxq
  */
-public class FrontendProxyServer extends ServerTemplate {
+public class FrontendProxyNettyServer extends NettyServerTemplate {
 
-    public FrontendProxyServer(ProxyConfig proxyConfig, FrpContext frpContext) {
+    public FrontendProxyNettyServer(ProxyConfig proxyConfig, FrpContext frpContext) {
         super(prepareConfigFeature(proxyConfig), proxyConfig.getIp(), proxyConfig.getPort(), prepareChannelInitializer(proxyConfig, frpContext));
     }
 
@@ -33,12 +33,6 @@ public class FrontendProxyServer extends ServerTemplate {
                         .addLast("decoder", codec.newDecoder())
                         .addLast("connectionHandler", new FrontendConnectHandler(frpContext))
                         .addLast("proxyHandler", new FrontendProxyHandler(frpContext));
-
-                createConnection(channel);
-            }
-
-            private void createConnection(Channel channel) {
-                new Connection(channel);
             }
         };
     }
