@@ -2,8 +2,8 @@ package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.common.Cluster;
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.RouteRuleConfig;
@@ -37,7 +37,7 @@ public class DefaultProxyRouteService extends AbstractLifeCycle implements Proxy
     }
 
     @Override
-    public RouteResult route(ProxyContext context) {
+    public RouteResult route(ExchangeProxyContext context) {
         ensureStarted();
 
         SelectResult selectResult = proxySelectService.select(context);
@@ -68,7 +68,7 @@ public class DefaultProxyRouteService extends AbstractLifeCycle implements Proxy
      * @param context
      * @return
      */
-    private RouteResult defaultRoute(ProxyContext context) {
+    private RouteResult defaultRoute(ExchangeProxyContext context) {
         List<Address> addresses = config.getDefaultConfig(context.getAppName(), context.getProtocol());
         if (CollectionUtils.isEmpty(addresses)) {
             return RouteResult.error("未找到能够提供服务的地址列表");

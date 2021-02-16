@@ -21,9 +21,9 @@ public class ProxyConfig {
 
     private int port;
 
-    private String codecPluginId;
+    private String protocolPluginId;
 
-    private String codecType;
+    private String protocolType;
 
     private String loadBalancePluginId;
 

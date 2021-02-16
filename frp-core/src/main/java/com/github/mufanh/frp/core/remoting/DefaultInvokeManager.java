@@ -1,8 +1,8 @@
 package com.github.mufanh.frp.core.remoting;
 
-import com.github.mufanh.frp.common.ErrCode;
-import com.github.mufanh.frp.common.ProxyContext;
-import com.github.mufanh.frp.common.ProxyException;
+import com.github.mufanh.frp.core.ErrCode;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
+import com.github.mufanh.frp.core.ProxyException;
 import com.github.mufanh.frp.core.util.TimerHolder;
 import com.google.common.collect.Maps;
 import io.netty.util.Timeout;
@@ -19,12 +19,12 @@ public class DefaultInvokeManager implements InvokeManager {
     private final Map<String/*msgId*/, InvokeContext> invokeContextMap = Maps.newConcurrentMap();
 
     @Override
-    public void addInvokeContext(ProxyContext context, long delay) {
+    public void addInvokeContext(ExchangeProxyContext context, long delay) {
         Timeout timeout = TimerHolder.getTimer().newTimeout(t -> {
             invokeContextMap.remove(context.getMsgId());
 
-            context.getExceptionHandler().handleException(
-                    context, new ProxyException(ErrCode.PROXY_TIMEOUT));
+            context.getExceptionHandler().handleException(context,
+                    new ProxyException(ErrCode.PROXY_TIMEOUT));
         }, delay, TimeUnit.MILLISECONDS);
 
         InvokeContext invokeContext = new InvokeContext(context, timeout);
@@ -32,7 +32,7 @@ public class DefaultInvokeManager implements InvokeManager {
     }
 
     @Override
-    public ProxyContext removeInvokeContext(String msgId) {
+    public ExchangeProxyContext removeInvokeContext(String msgId) {
         InvokeContext invokeContext = invokeContextMap.remove(msgId);
         if (invokeContext != null) {
             invokeContext.getTimeout().cancel();
@@ -44,11 +44,11 @@ public class DefaultInvokeManager implements InvokeManager {
     @Getter
     private static final class InvokeContext {
 
-        private final ProxyContext context;
+        private final ExchangeProxyContext context;
 
         private final Timeout timeout;
 
-        public InvokeContext(ProxyContext context, Timeout timeout) {
+        public InvokeContext(ExchangeProxyContext context, Timeout timeout) {
             this.context = context;
             this.timeout = timeout;
         }

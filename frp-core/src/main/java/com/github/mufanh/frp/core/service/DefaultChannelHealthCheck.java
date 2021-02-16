@@ -1,8 +1,8 @@
 package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Address;
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.remoting.ConnectionManager;
@@ -29,7 +29,7 @@ public class DefaultChannelHealthCheck extends AbstractLifeCycle implements Chan
     }
 
     @Override
-    public boolean check(ProxyContext context, Address address) {
+    public boolean check(ExchangeProxyContext context, Address address) {
         Channel channel = connectionManager.getBackendChannelIfActive(address);
         return channel != null;
     }

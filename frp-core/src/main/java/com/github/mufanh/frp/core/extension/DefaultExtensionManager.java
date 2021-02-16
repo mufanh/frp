@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.extension;
 
-import com.github.mufanh.frp.common.extension.Codec;
+import com.github.mufanh.frp.common.extension.Protocol;
 import com.github.mufanh.frp.common.extension.LoadBalance;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.LifeCycleException;
@@ -82,11 +82,11 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
     }
 
     @Override
-    public Codec codec(String type, String pluginId) {
-        List<Codec> codecs = getExtensions(Codec.class, pluginId);
-        for (Codec codec : codecs) {
-            if (StringUtils.equals(codec.getClass().getName(), type)) {
-                return codec;
+    public Protocol protocol(String type, String pluginId) {
+        List<Protocol> protocols = getExtensions(Protocol.class, pluginId);
+        for (Protocol protocol : protocols) {
+            if (StringUtils.equals(protocol.getClass().getName(), type)) {
+                return protocol;
             }
         }
         return null;

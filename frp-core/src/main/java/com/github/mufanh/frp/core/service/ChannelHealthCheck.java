@@ -1,7 +1,7 @@
 package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Address;
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.LifeCycle;
 
 /**
@@ -9,7 +9,7 @@ import com.github.mufanh.frp.core.LifeCycle;
  */
 public interface ChannelHealthCheck extends LifeCycle {
 
-    boolean check(ProxyContext context, Address address);
+    boolean check(ExchangeProxyContext context, Address address);
 
     interface Aware {
 

@@ -1,9 +1,9 @@
 package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Cluster;
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.common.Rule;
 import com.github.mufanh.frp.common.RuleGroup;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.config.RouteRuleConfig;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -18,7 +18,7 @@ public class DefaultProxySelectService implements ProxySelectService {
     private static final RouteRuleConfig config = RouteRuleConfig.getInstance();
 
     @Override
-    public SelectResult select(ProxyContext context) {
+    public SelectResult select(ExchangeProxyContext context) {
         List<RuleGroup> ruleGroups = config.getConfig(context.getAppName(), context.getProtocol());
         if (CollectionUtils.isEmpty(ruleGroups)) {
             return SelectResult.error("分流规则列表为空");
@@ -30,13 +30,13 @@ public class DefaultProxySelectService implements ProxySelectService {
         return SelectResult.success(result);
     }
 
-    private static List<Cluster> visitRuleGroups(List<RuleGroup> ruleGroups, ProxyContext context) {
+    private static List<Cluster> visitRuleGroups(List<RuleGroup> ruleGroups, ExchangeProxyContext context) {
         return ruleGroups.stream()
                 .flatMap(ruleGroup -> visitRuleGroup(ruleGroup, context).stream())
                 .collect(Collectors.toList());
     }
 
-    private static List<Cluster> visitRuleGroup(RuleGroup ruleGroup, ProxyContext context) {
+    private static List<Cluster> visitRuleGroup(RuleGroup ruleGroup, ExchangeProxyContext context) {
         List<Cluster> result = ruleGroup.getRules()
                 .stream()
                 .filter(rule -> rule.getCondition().check(context))

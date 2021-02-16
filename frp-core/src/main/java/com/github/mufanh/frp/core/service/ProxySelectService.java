@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.service;
 
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 
 /**
  * @author xinquan.huangxq
@@ -13,7 +13,7 @@ public interface ProxySelectService {
      * @param context
      * @return
      */
-    SelectResult select(ProxyContext context);
+    SelectResult select(ExchangeProxyContext context);
 
     interface Aware {
 

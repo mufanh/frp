@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>frp-codec-plugins</artifactId>
+    <artifactId>frp-protocol-plugins</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>frp-codec-tcp2</module>
+        <module>frp-protocol-tcp2</module>
     </modules>
 </project>

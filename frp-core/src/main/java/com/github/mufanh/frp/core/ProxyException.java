@@ -1,4 +1,4 @@
-package com.github.mufanh.frp.common;
+package com.github.mufanh.frp.core;
 
 import lombok.Getter;
 

@@ -1,10 +1,8 @@
-package com.github.mufanh.plugins.codec.tcp2;
+package com.github.mufanh.plugins.protocol.tcp2;
 
-import com.github.mufanh.frp.common.ErrCode;
-import com.github.mufanh.frp.common.ProxyContext;
-import com.github.mufanh.frp.common.ProxyException;
+import com.github.mufanh.frp.common.DefaultProxyContext;
+import com.github.mufanh.frp.common.extension.ProxyContext;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
@@ -35,12 +33,12 @@ public class TCP2Decoder extends ByteToMessageDecoder {
         String lengthStr = new String(lengthField);
         int length = Integer.parseInt(lengthStr);
         if (length > 10 * 1024) {
-            throw new ProxyException(ErrCode.PROXY_BAD_REQUEST, "报文过长");
+            throw new Exception("报文过长");
         }
 
         if (length == 0) {
             // 心跳包
-            out.add(ProxyContext.HEARTBEAT);
+            out.add(DefaultProxyContext.buildHeartBeat());
             return;
         }
 
@@ -57,14 +55,14 @@ public class TCP2Decoder extends ByteToMessageDecoder {
 
         Map<String, Object> json = JSONUtil.json2Map(jsonStr);
 
-        ProxyContext context = new ProxyContext();
+        ProxyContext context = DefaultProxyContext.build();
         context.setPayload(jsonStr);
         context.setMsgId((String) json.get("msgId"));
-        context.setHeader(ProxyContext.HeaderKeys.IP, ip);
+        context.setHeader(ProxyContext.HEADER_IP, ip);
 
         for (Map.Entry<String, Object> entry : json.entrySet()) {
             if (entry.getValue() instanceof String) {
-                context.addParam(entry.getKey(), (String) entry.getValue());
+                context.setParam(entry.getKey(), (String) entry.getValue());
             }
         }
 

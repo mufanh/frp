@@ -1,8 +1,9 @@
 package com.github.mufanh.frp.core.remoting;
 
-import com.github.mufanh.frp.common.ErrCode;
-import com.github.mufanh.frp.common.ProxyContext;
-import com.github.mufanh.frp.common.ProxyException;
+import com.github.mufanh.frp.core.ErrCode;
+import com.github.mufanh.frp.common.extension.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
+import com.github.mufanh.frp.core.ProxyException;
 import com.github.mufanh.frp.core.FrpContext;
 import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
             return;
         }
 
-        ChannelId frontendChannelId = requestProxyContext.getHeader(ProxyContext.HeaderKeys.CHANNEL_ID);
+        ChannelId frontendChannelId = requestProxyContext.getHeader(ExchangeProxyContext.HEADER_CHANNEL_ID);
         if (frontendChannelId == null) {
             return;
         }
@@ -53,6 +54,7 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
         if (channel != null) {
             channel.writeAndFlush(responseProxyContext).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
+                    // 添加日志
                 } else {
                     // 写响应报文异常，关闭上游连接
                     future.channel().close();

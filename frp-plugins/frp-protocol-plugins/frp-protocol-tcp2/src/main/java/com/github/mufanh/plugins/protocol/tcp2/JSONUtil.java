@@ -1,4 +1,4 @@
-package com.github.mufanh.plugins.codec.tcp2;
+package com.github.mufanh.plugins.protocol.tcp2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

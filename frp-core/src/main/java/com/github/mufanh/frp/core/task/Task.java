@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.task;
 
-import com.github.mufanh.frp.common.ProxyException;
+import com.github.mufanh.frp.core.ProxyException;
 
 /**
  * @author xinquan.huangxq

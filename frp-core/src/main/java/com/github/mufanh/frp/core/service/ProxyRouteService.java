@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.service;
 
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.LifeCycle;
 
 /**
@@ -8,7 +8,7 @@ import com.github.mufanh.frp.core.LifeCycle;
  */
 public interface ProxyRouteService extends LifeCycle {
 
-    RouteResult route(ProxyContext context);
+    RouteResult route(ExchangeProxyContext context);
 
     interface Aware {
 

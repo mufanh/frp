@@ -2,9 +2,9 @@ package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.common.Cluster;
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.common.extension.LoadBalance;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.SystemConfigs;
@@ -41,12 +41,12 @@ public class DefaultChannelChooseService extends AbstractLifeCycle implements Ch
     }
 
     @Override
-    public ChooseResult choose(ProxyContext context, Cluster cluster) {
+    public ChooseResult choose(ExchangeProxyContext context, Cluster cluster) {
         return choose(context, cluster.getAddresses());
     }
 
     @Override
-    public ChooseResult choose(ProxyContext context, List<Address> addresses) {
+    public ChooseResult choose(ExchangeProxyContext context, List<Address> addresses) {
         ensureStarted();
 
         if (CollectionUtils.isEmpty(addresses)) {
@@ -79,8 +79,8 @@ public class DefaultChannelChooseService extends AbstractLifeCycle implements Ch
         return ChooseResult.success(address);
     }
 
-    private LoadBalance prepareLoadBalance(ProxyContext context) {
-        String type = context.getHeader(ProxyContext.HeaderKeys.LOAD_BALANCE);
+    private LoadBalance prepareLoadBalance(ExchangeProxyContext context) {
+        String type = context.getHeader(ExchangeProxyContext.HEADER_LOAD_BALANCE_TYPE);
         if (StringUtils.isBlank(type)) {
             type = SystemConfigs.DEFAULT_LOAD_BALANCE.stringValue();
         }

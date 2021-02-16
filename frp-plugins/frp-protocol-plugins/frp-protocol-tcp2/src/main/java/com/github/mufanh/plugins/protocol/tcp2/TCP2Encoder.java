@@ -1,8 +1,7 @@
-package com.github.mufanh.plugins.codec.tcp2;
+package com.github.mufanh.plugins.protocol.tcp2;
 
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.common.extension.ProxyContext;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;

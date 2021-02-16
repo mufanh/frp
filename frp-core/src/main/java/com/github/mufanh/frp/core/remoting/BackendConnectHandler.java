@@ -1,7 +1,6 @@
 package com.github.mufanh.frp.core.remoting;
 
 import com.github.mufanh.frp.common.Address;
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.config.RouteRuleConfig;
@@ -20,16 +19,10 @@ import java.util.Set;
  */
 @ChannelHandler.Sharable
 @Slf4j
-public class BackendConnectHandler extends ChannelDuplexHandler {
-
-    private final FrpContext frpContext;
-    private final String appName;
-    private final String protocol;
+public class BackendConnectHandler extends AbstractProxyHandler {
 
     public BackendConnectHandler(FrpContext frpContext, ProxyConfig proxyConfig) {
-        this.frpContext = frpContext;
-        this.appName = proxyConfig.getAppName();
-        this.protocol = proxyConfig.getProtocol();
+        super(frpContext, proxyConfig);
     }
 
     @Override
@@ -76,7 +69,8 @@ public class BackendConnectHandler extends ChannelDuplexHandler {
                 if (channel.isActive() && channel.isWritable()) {
                     log.info("Backend发起心跳：{}", channel.remoteAddress());
                     try {
-                        channel.writeAndFlush(ProxyContext.HEARTBEAT).addListener((ChannelFuture future) -> {
+
+                        channel.writeAndFlush(createHeartBeat()).addListener((ChannelFuture future) -> {
                             if (!future.isSuccess()) {
                                 retryConnect(channel);
                             }
@@ -102,14 +96,14 @@ public class BackendConnectHandler extends ChannelDuplexHandler {
         if (address != null) {
             Table<String/*appName*/, String/*protocol*/, Set<Address>> table =
                     RouteRuleConfig.getInstance().getAvailableAddresses();
-            Set<Address> availableAddresses = table.get(appName, protocol);
+            Set<Address> availableAddresses = table.get(proxyConfig.getAppName(), proxyConfig.getProtocol());
             if (availableAddresses != null && availableAddresses.contains(address)) {
                 BackendTryConnectManager backendTryConnectManager = frpContext.getBackendTryConnectManager();
                 if (backendTryConnectManager == null) {
                     log.error("重连管理器不存在，无法发起重连");
                     return;
                 }
-                backendTryConnectManager.tryConnect(appName, protocol, address);
+                backendTryConnectManager.tryConnect(proxyConfig.getAppName(), proxyConfig.getProtocol(), address);
             }
         }
     }

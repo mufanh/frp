@@ -1,7 +1,7 @@
 package com.github.mufanh.frp.core.extension.buildin.precondition;
 
-import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.common.extension.Precondition;
+import com.github.mufanh.frp.common.extension.ProxyContext;
 import com.google.common.collect.Sets;
 
 import java.util.Collection;

@@ -9,11 +9,8 @@ import io.netty.channel.Channel;
  * @author xinquan.huangxq
  */
 public interface ConnectionFactory extends LifeCycle {
-
-    class FeatureKeys {
-        public static final String NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";
-        public static final String NETTY_BUFFER_HIGH_WATERMARK = "NETTY_BUFFER_HIGH_WATERMARK";
-    }
+    String FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";
+    String FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK = "NETTY_BUFFER_HIGH_WATERMARK";
 
     /**
      * 创建连接

@@ -1,10 +1,10 @@
 package com.github.mufanh.frp.core.task;
 
-import com.github.mufanh.frp.common.ErrCode;
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ErrCode;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.LifeCycleException;
-import com.github.mufanh.frp.common.ProxyException;
+import com.github.mufanh.frp.core.ProxyException;
 import com.github.mufanh.frp.core.util.NamedThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,7 +56,7 @@ public class DefaultTaskExecutor extends AbstractLifeCycle implements TaskExecut
     }
 
     @Override
-    public void executeImmediately(ProxyContext context, Task task) {
+    public void executeImmediately(ExchangeProxyContext context, Task task) {
         ensureStarted();
         try {
             synchronousExecutor.execute(TaskRunner.make(task, context));
@@ -66,7 +66,7 @@ public class DefaultTaskExecutor extends AbstractLifeCycle implements TaskExecut
     }
 
     @Override
-    public void execute(ProxyContext context, Task task, int delay) {
+    public void execute(ExchangeProxyContext context, Task task, int delay) {
         ensureStarted();
         try {
             scheduledExecutor.schedule(TaskRunner.make(task, context), delay, TimeUnit.MILLISECONDS);
@@ -76,7 +76,7 @@ public class DefaultTaskExecutor extends AbstractLifeCycle implements TaskExecut
     }
 
     @Override
-    public void execute(ProxyContext context, Task task) {
+    public void execute(ExchangeProxyContext context, Task task) {
         ensureStarted();
         try {
             scheduledExecutor.execute(TaskRunner.make(task, context));
@@ -85,7 +85,7 @@ public class DefaultTaskExecutor extends AbstractLifeCycle implements TaskExecut
         }
     }
 
-    private static void handleRejectedException(final ProxyContext context, RejectedExecutionException e) {
+    private static void handleRejectedException(final ExchangeProxyContext context, RejectedExecutionException e) {
         log.error("系统超载，线程池耗尽！");
         if (context != null && context.getExceptionHandler() != null) {
             ProxyException be = new ProxyException(ErrCode.PROXY_SYSTEM_BUSY, "系统繁忙，请稍候再试。");

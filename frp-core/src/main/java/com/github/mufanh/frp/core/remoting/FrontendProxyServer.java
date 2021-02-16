@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.remoting;
 
-import com.github.mufanh.frp.common.extension.Codec;
+import com.github.mufanh.frp.common.extension.Protocol;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.config.ConfigFeature;
 import com.github.mufanh.frp.core.config.ProxyConfig;
@@ -20,26 +20,26 @@ public class FrontendProxyServer extends NettyServerTemplate {
     }
 
     private static ChannelInitializer<SocketChannel> prepareChannelInitializer(ProxyConfig proxyConfig, FrpContext frpContext) {
-        Codec codec = prepareCodec(proxyConfig, frpContext);
+        Protocol protocol = prepareProtocol(proxyConfig, frpContext);
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) throws Exception {
                 channel.pipeline().addLast("idleHandler", new IdleStateHandler(
                         0, 0, prepareFrontendAccessIdleTime(proxyConfig)))
-                        .addLast("encoder", codec.newEncoder())
-                        .addLast("decoder", codec.newDecoder())
-                        .addLast("context", new EnrichProxyContextHandler(proxyConfig))
+                        .addLast("encoder", protocol.newEncoder())
+                        .addLast("decoder", protocol.newDecoder())
+                        .addLast("context", new ExchangeProxyContextBuilder(frpContext, proxyConfig))
                         .addLast("connectionHandler", new FrontendConnectHandler(frpContext))
-                        .addLast("proxyHandler", new FrontendProxyHandler(frpContext));
+                        .addLast("proxyHandler", new FrontendProxyHandler(frpContext, proxyConfig));
             }
         };
     }
 
-    private static Codec prepareCodec(ProxyConfig proxyConfig, FrpContext frpContext) {
+    private static Protocol prepareProtocol(ProxyConfig proxyConfig, FrpContext frpContext) {
         ExtensionManager extensionManager = frpContext.getExtensionManager();
-        Codec codec = extensionManager.codec(proxyConfig.getCodecType(), proxyConfig.getCodecPluginId());
-        if (codec != null) {
-            return codec;
+        Protocol protocol = extensionManager.protocol(proxyConfig.getProtocolType(), proxyConfig.getProtocolPluginId());
+        if (protocol != null) {
+            return protocol;
         }
         throw new IllegalArgumentException("未找到代理服务的编码、解码器");
     }
@@ -52,9 +52,9 @@ public class FrontendProxyServer extends NettyServerTemplate {
 
     private static ConfigFeature prepareConfigFeature(ProxyConfig proxyConfig) {
         return new ConfigFeature()
-                .addFeature(FeatureKeys.TCP_SO_RCVBUF, proxyConfig.getFrontendTcpSoRcvBuf())
-                .addFeature(FeatureKeys.TCP_SO_SNDBUF, proxyConfig.getFrontendTcpSoSndBuf())
-                .addFeature(FeatureKeys.NETTY_BUFFER_HIGH_WATERMARK, proxyConfig.getFrontendNettyBufferHighWatermark())
-                .addFeature(FeatureKeys.NETTY_BUFFER_LOW_WATERMARK, proxyConfig.getFrontendNettyBufferLowWatermark());
+                .addFeature(FEATURE_KEY_TCP_SO_RCVBUF, proxyConfig.getFrontendTcpSoRcvBuf())
+                .addFeature(FEATURE_KEY_TCP_SO_SNDBUF, proxyConfig.getFrontendTcpSoSndBuf())
+                .addFeature(FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK, proxyConfig.getFrontendNettyBufferHighWatermark())
+                .addFeature(FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK, proxyConfig.getFrontendNettyBufferLowWatermark());
     }
 }

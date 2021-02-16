@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.remoting;
 
-import com.github.mufanh.frp.common.extension.Codec;
+import com.github.mufanh.frp.common.extension.Protocol;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.config.ConfigFeature;
 import com.github.mufanh.frp.core.config.ProxyConfig;
@@ -20,7 +20,7 @@ public class BackendConnectionFactory extends AbstractConnectionFactory {
     }
 
     private static ChannelInitializer<SocketChannel> prepareChannelInitializer(ProxyConfig proxyConfig, FrpContext frpContext) {
-        Codec codec = prepareCodec(proxyConfig, frpContext);
+        Protocol protocol = prepareProtocol(proxyConfig, frpContext);
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel channel) throws Exception {
@@ -29,27 +29,27 @@ public class BackendConnectionFactory extends AbstractConnectionFactory {
                                 prepareBackendReadIdleTime(proxyConfig),
                                 prepareBackendWriteIdleTime(proxyConfig),
                                 prepareBackendAccessIdleTime(proxyConfig)))
-                        .addLast("encoder", codec.newEncoder())
-                        .addLast("decoder", codec.newDecoder())
+                        .addLast("encoder", protocol.newEncoder())
+                        .addLast("decoder", protocol.newDecoder())
                         .addLast("connectionHandler", new BackendConnectHandler(frpContext, proxyConfig))
                         .addLast("proxyHandler", new BackendProxyHandler(frpContext));
             }
         };
     }
 
-    private static Codec prepareCodec(ProxyConfig proxyConfig, FrpContext frpContext) {
+    private static Protocol prepareProtocol(ProxyConfig proxyConfig, FrpContext frpContext) {
         ExtensionManager extensionManager = frpContext.getExtensionManager();
-        Codec codec = extensionManager.codec(proxyConfig.getCodecType(), proxyConfig.getCodecPluginId());
-        if (codec != null) {
-            return codec;
+        Protocol protocol = extensionManager.protocol(proxyConfig.getProtocolType(), proxyConfig.getProtocolPluginId());
+        if (protocol != null) {
+            return protocol;
         }
         throw new IllegalArgumentException("未找到代理服务的编码、解码器");
     }
 
     private static ConfigFeature prepareConfigFeature(ProxyConfig proxyConfig) {
         return new ConfigFeature()
-                .addFeature(FeatureKeys.NETTY_BUFFER_HIGH_WATERMARK, proxyConfig.getBackendNettyBufferHighWatermark())
-                .addFeature(FeatureKeys.NETTY_BUFFER_LOW_WATERMARK, proxyConfig.getBackendNettyBufferLowWatermark());
+                .addFeature(FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK, proxyConfig.getBackendNettyBufferHighWatermark())
+                .addFeature(FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK, proxyConfig.getBackendNettyBufferLowWatermark());
     }
 
     private static int prepareBackendReadIdleTime(ProxyConfig proxyConfig) {

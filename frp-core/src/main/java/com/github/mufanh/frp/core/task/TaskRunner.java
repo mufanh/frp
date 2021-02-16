@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.task;
 
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -11,14 +11,14 @@ public class TaskRunner implements Runnable {
 
     private final Task task;
 
-    private final ProxyContext context;
+    private final ExchangeProxyContext context;
 
-    private TaskRunner(Task task, ProxyContext context) {
+    private TaskRunner(Task task, ExchangeProxyContext context) {
         this.task = task;
         this.context = context;
     }
 
-    public static TaskRunner make(Task task, ProxyContext context) {
+    public static TaskRunner make(Task task, ExchangeProxyContext context) {
         return new TaskRunner(task, context);
     }
 

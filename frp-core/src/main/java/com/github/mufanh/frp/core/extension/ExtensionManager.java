@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.extension;
 
-import com.github.mufanh.frp.common.extension.Codec;
+import com.github.mufanh.frp.common.extension.Protocol;
 import com.github.mufanh.frp.common.extension.LoadBalance;
 import com.github.mufanh.frp.core.LifeCycle;
 import org.pf4j.ExtensionPoint;
@@ -19,7 +19,7 @@ public interface ExtensionManager extends LifeCycle {
      * @param pluginId
      * @return
      */
-    Codec codec(String type, String pluginId);
+    Protocol protocol(String type, String pluginId);
 
     /**
      * 获取LoadBalance

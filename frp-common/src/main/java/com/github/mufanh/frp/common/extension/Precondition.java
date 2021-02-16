@@ -1,7 +1,5 @@
 package com.github.mufanh.frp.common.extension;
 
-import com.github.mufanh.frp.common.ProxyContext;
-
 /**
  * @author xinquan.huangxq
  */

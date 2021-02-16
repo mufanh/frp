@@ -2,7 +2,7 @@ package com.github.mufanh.frp.core.service;
 
 import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.common.Cluster;
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.LifeCycle;
 
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface ChannelChooseService extends LifeCycle {
 
-    ChooseResult choose(ProxyContext context, Cluster cluster);
+    ChooseResult choose(ExchangeProxyContext context, Cluster cluster);
 
-    ChooseResult choose(ProxyContext context, List<Address> addresses);
+    ChooseResult choose(ExchangeProxyContext context, List<Address> addresses);
 
     interface Aware {
 

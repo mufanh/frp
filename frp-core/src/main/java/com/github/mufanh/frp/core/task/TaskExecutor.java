@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core.task;
 
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.LifeCycle;
 
 /**
@@ -14,7 +14,7 @@ public interface TaskExecutor extends LifeCycle {
      * @param context
      * @param task
      */
-    void executeImmediately(final ProxyContext context, final Task task);
+    void executeImmediately(final ExchangeProxyContext context, final Task task);
 
     /**
      * 延迟执行
@@ -23,7 +23,7 @@ public interface TaskExecutor extends LifeCycle {
      * @param task
      * @param delay
      */
-    void execute(final ProxyContext context, final Task task, int delay);
+    void execute(final ExchangeProxyContext context, final Task task, int delay);
 
     /**
      * 立即执行任务，使用无界队列
@@ -31,7 +31,7 @@ public interface TaskExecutor extends LifeCycle {
      * @param context
      * @param task
      */
-    void execute(final ProxyContext context, final Task task);
+    void execute(final ExchangeProxyContext context, final Task task);
 
     interface Aware {
 

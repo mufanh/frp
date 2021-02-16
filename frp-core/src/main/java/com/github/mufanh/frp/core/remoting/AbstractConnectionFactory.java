@@ -100,9 +100,9 @@ public class AbstractConnectionFactory extends AbstractLifeCycle implements Conn
     }
 
     private void initWriteBufferWaterMark() {
-        Integer lowWaterMark = configFeature.getFeature(FeatureKeys.NETTY_BUFFER_LOW_WATERMARK,
+        Integer lowWaterMark = configFeature.getFeature(FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK,
                 SystemConfigs.NETTY_BUFFER_LOW_WATERMARK::getInt);
-        Integer highWaterMark = configFeature.getFeature(FeatureKeys.NETTY_BUFFER_HIGH_WATERMARK,
+        Integer highWaterMark = configFeature.getFeature(FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK,
                 SystemConfigs.NETTY_BUFFER_HIGH_WATERMARK::getInt);
         if (lowWaterMark == null && highWaterMark == null) {
             return;

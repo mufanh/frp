@@ -1,13 +1,13 @@
 package com.github.mufanh.frp.core.remoting;
 
-import com.github.mufanh.frp.common.AbstractExceptionHandler;
-import com.github.mufanh.frp.common.ErrCode;
-import com.github.mufanh.frp.common.ExceptionHandler;
-import com.github.mufanh.frp.common.ProxyContext;
+import com.github.mufanh.frp.core.AbstractExceptionHandler;
+import com.github.mufanh.frp.core.ErrCode;
+import com.github.mufanh.frp.core.ExceptionHandler;
+import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
+import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.task.TaskExecutor;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @ChannelHandler.Sharable
-public class FrontendProxyHandler extends ChannelDuplexHandler {
+public class FrontendProxyHandler extends AbstractProxyHandler {
 
     private final ConnectionManager connectionManager;
 
@@ -25,7 +25,9 @@ public class FrontendProxyHandler extends ChannelDuplexHandler {
 
     private final TaskExecutor taskExecutor;
 
-    public FrontendProxyHandler(FrpContext frpContext) {
+    public FrontendProxyHandler(FrpContext frpContext, ProxyConfig proxyConfig) {
+        super(frpContext, proxyConfig);
+
         this.connectionManager = frpContext.getConnectionManager();
         this.proxyInvokeService = frpContext.getProxyInvokeService();
         this.taskExecutor = frpContext.getTaskExecutor();
@@ -33,17 +35,17 @@ public class FrontendProxyHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!(msg instanceof ProxyContext)) {
+        if (!(msg instanceof ExchangeProxyContext)) {
             throw new Exception("未定义的消息类型");
         }
 
-        ProxyContext context = (ProxyContext) msg;
-        context.setHeader(ProxyContext.HeaderKeys.CHANNEL_ID, ctx.channel().id());
+        ExchangeProxyContext context = (ExchangeProxyContext) msg;
+        context.setHeader(ExchangeProxyContext.HEADER_CHANNEL_ID, ctx.channel().id());
 
         if (context.isHeartBeat()) {
             log.info("Fronted收到心跳:{}", ctx.channel().remoteAddress());
             // 心跳应答
-            ctx.writeAndFlush(ProxyContext.HEARTBEAT);
+            ctx.writeAndFlush(createHeartBeat());
             return;
         }
 
@@ -51,7 +53,7 @@ public class FrontendProxyHandler extends ChannelDuplexHandler {
             ExceptionHandler exceptionHandler = context.getExceptionHandler();
             context.setExceptionHandler(new AbstractExceptionHandler() {
                 @Override
-                protected void response(ProxyContext context) {
+                protected void response(ExchangeProxyContext context) {
                     if (exceptionHandler != null) {
                         exceptionHandler.handleException(context, context.getException());
                     }
@@ -67,12 +69,12 @@ public class FrontendProxyHandler extends ChannelDuplexHandler {
                  * @param context
                  * @return
                  */
-                private boolean needCloseChannel(ProxyContext context) {
-                    ErrCode errCode = context.getErrCode();
+                private boolean needCloseChannel(ExchangeProxyContext context) {
+                    String errCode = context.getCode();
                     if (errCode == null) {
                         return false;
                     }
-                    if (errCode == ErrCode.PROXY_BAD_REQUEST) {
+                    if (errCode.equals(ErrCode.PROXY_BAD_REQUEST.code())) {
                         return true;
                     }
                     return false;

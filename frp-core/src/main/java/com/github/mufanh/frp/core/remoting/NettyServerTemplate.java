@@ -20,14 +20,11 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public abstract class NettyServerTemplate extends AbstractLifeCycle {
+    public static final String FEATURE_KEY_TCP_SO_SNDBUF = "TCP_SO_SNDBUF";
+    public static final String FEATURE_KEY_TCP_SO_RCVBUF = "TCP_SO_RCVBUF";
 
-    public static class FeatureKeys {
-        public static final String TCP_SO_SNDBUF = "TCP_SO_SNDBUF";
-        public static final String TCP_SO_RCVBUF = "TCP_SO_RCVBUF";
-
-        public static final String NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";
-        public static final String NETTY_BUFFER_HIGH_WATERMARK = "NETTY_BUFFER_HIGH_WATERMARK";
-    }
+    public static final String FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";
+    public static final String FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK = "NETTY_BUFFER_HIGH_WATERMARK";
 
     /**
      * 非daemon，需要考虑优雅下线
@@ -115,9 +112,9 @@ public abstract class NettyServerTemplate extends AbstractLifeCycle {
                 .childOption(ChannelOption.TCP_NODELAY, SystemConfigs.TCP_NODELAY.boolValue())
                 .childOption(ChannelOption.SO_KEEPALIVE, SystemConfigs.TCP_SO_KEEPALIVE.boolValue())
                 .childOption(ChannelOption.SO_SNDBUF, configFeature.getFeature(
-                        FeatureKeys.TCP_SO_SNDBUF, SystemConfigs.TCP_SO_SNDBUF::getInt))
+                        FEATURE_KEY_TCP_SO_SNDBUF, SystemConfigs.TCP_SO_SNDBUF::getInt))
                 .childOption(ChannelOption.SO_RCVBUF, configFeature.getFeature(
-                        FeatureKeys.TCP_SO_RCVBUF, SystemConfigs.TCP_SO_RCVBUF::getInt));
+                        FEATURE_KEY_TCP_SO_RCVBUF, SystemConfigs.TCP_SO_RCVBUF::getInt));
 
         initWriteBufferWaterMark();
 
@@ -135,9 +132,9 @@ public abstract class NettyServerTemplate extends AbstractLifeCycle {
     }
 
     private void initWriteBufferWaterMark() {
-        Integer lowWaterMark = configFeature.getFeature(FeatureKeys.NETTY_BUFFER_LOW_WATERMARK,
+        Integer lowWaterMark = configFeature.getFeature(FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK,
                 SystemConfigs.NETTY_BUFFER_LOW_WATERMARK::getInt);
-        Integer highWaterMark = configFeature.getFeature(FeatureKeys.NETTY_BUFFER_HIGH_WATERMARK,
+        Integer highWaterMark = configFeature.getFeature(FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK,
                 SystemConfigs.NETTY_BUFFER_HIGH_WATERMARK::getInt);
         if (lowWaterMark == null && highWaterMark == null) {
             return;

@@ -1,9 +1,8 @@
 package com.github.mufanh.frp.core.remoting;
 
 import com.github.mufanh.frp.common.*;
-import com.github.mufanh.frp.core.AbstractLifeCycle;
-import com.github.mufanh.frp.core.FrpContext;
-import com.github.mufanh.frp.core.LifeCycleException;
+import com.github.mufanh.frp.core.*;
+import com.github.mufanh.frp.core.ErrCode;
 import com.github.mufanh.frp.core.config.ProxyConfig;
 import com.github.mufanh.frp.core.service.ProxyRouteService;
 import com.github.mufanh.frp.core.service.RouteResult;
@@ -40,7 +39,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
         invokeManager = frpContext.getInvokeManager();
     }
 
-    public void invoke(final ProxyContext context) throws ProxyException {
+    public void invoke(final ExchangeProxyContext context) throws ProxyException {
         ensureStarted();
 
         RouteResult routeResult = proxyRouteService.route(context);
@@ -51,7 +50,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
         proxyInvoke(context, routeResult.getAddress());
     }
 
-    private void proxyInvoke(ProxyContext context, Address address) throws ProxyException {
+    private void proxyInvoke(ExchangeProxyContext context, Address address) throws ProxyException {
         Channel channel = connectionManager.getBackendChannel(address);
         if (channel != null) {
             sendToBackendChannel(channel, context);
@@ -61,7 +60,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
         backendTryConnectManager.tryConnect(context.getAppName(), context.getProtocol(), address);
     }
 
-    private void sendToBackendChannel(Channel channel, ProxyContext context) {
+    private void sendToBackendChannel(Channel channel, ExchangeProxyContext context) {
         ProxyConfig proxyConfig = frpContext.getProxyConfig(context.getAppName(), context.getProtocol());
 
         invokeManager.addInvokeContext(context, proxyConfig.getTimeout());
@@ -69,7 +68,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
         ExceptionHandler exceptionHandler = context.getExceptionHandler();
         context.setExceptionHandler(new AbstractExceptionHandler() {
             @Override
-            protected void response(ProxyContext context) {
+            protected void response(ExchangeProxyContext context) {
                 // 删除请求
                 invokeManager.removeInvokeContext(context.getMsgId());
 
