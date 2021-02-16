@@ -32,11 +32,13 @@ public class DefaultInvokeManager implements InvokeManager {
     }
 
     @Override
-    public void removeInvokeContext(String msgId) {
+    public ProxyContext removeInvokeContext(String msgId) {
         InvokeContext invokeContext = invokeContextMap.remove(msgId);
         if (invokeContext != null) {
             invokeContext.getTimeout().cancel();
+            return invokeContext.getContext();
         }
+        return null;
     }
 
     @Getter

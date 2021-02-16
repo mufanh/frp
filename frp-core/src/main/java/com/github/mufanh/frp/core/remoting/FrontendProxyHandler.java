@@ -38,13 +38,14 @@ public class FrontendProxyHandler extends ChannelDuplexHandler {
         }
 
         ProxyContext context = (ProxyContext) msg;
+        context.setHeader(ProxyContext.HeaderKeys.CHANNEL_ID, ctx.channel().id());
+
         if (context.isHeartBeat()) {
             log.info("Fronted收到心跳:{}", ctx.channel().remoteAddress());
             // 心跳应答
             ctx.writeAndFlush(ProxyContext.HEARTBEAT);
             return;
         }
-
 
         taskExecutor.executeImmediately(context, () -> {
             ExceptionHandler exceptionHandler = context.getExceptionHandler();

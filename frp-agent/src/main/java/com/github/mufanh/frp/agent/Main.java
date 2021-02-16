@@ -24,7 +24,7 @@ public class Main {
                 .port(10086)
                 .codecPluginId("frp-codec-tcp2")
                 .codecType("com.github.mufanh.plugins.codec.tcp2.Tcp2UTF8Codec")
-                .timeout(5000)
+                .timeout(50000)
                 .defaultAddresses(Collections.singletonList(Address.of("127.0.0.1", 9999)))
                 .build();
 

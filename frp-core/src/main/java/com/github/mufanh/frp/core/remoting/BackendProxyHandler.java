@@ -4,8 +4,7 @@ import com.github.mufanh.frp.common.ErrCode;
 import com.github.mufanh.frp.common.ProxyContext;
 import com.github.mufanh.frp.common.ProxyException;
 import com.github.mufanh.frp.core.FrpContext;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,8 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class BackendProxyHandler extends ChannelDuplexHandler {
 
+    private final FrpContext frpContext;
 
     public BackendProxyHandler(final FrpContext frpContext) {
+        this.frpContext = frpContext;
     }
 
     @Override
@@ -25,15 +26,38 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
             throw new Exception("错误的消息类型");
         }
 
-        ProxyContext context = (ProxyContext) msg;
+        ProxyContext responseProxyContext = (ProxyContext) msg;
 
         // 心跳响应
-        if (context.isHeartBeat()) {
+        if (responseProxyContext.isHeartBeat()) {
+            log.info("Backend收到心跳:{}", ctx.channel().remoteAddress());
             return;
         }
 
-        if (StringUtils.isBlank(context.getMsgId())) {
+        if (StringUtils.isBlank(responseProxyContext.getMsgId())) {
             throw new ProxyException(ErrCode.PROXY_BACKEND_ERROR, "代理服务响应报文不合法，丢失消息唯一标识");
+        }
+
+        ProxyContext requestProxyContext = frpContext.getInvokeManager()
+                .removeInvokeContext(responseProxyContext.getMsgId());
+        if (requestProxyContext == null) {
+            // 服务超时，可以已经释放了
+            return;
+        }
+
+        ChannelId frontendChannelId = requestProxyContext.getHeader(ProxyContext.HeaderKeys.CHANNEL_ID);
+        if (frontendChannelId == null) {
+            return;
+        }
+        Channel channel = frpContext.getConnectionManager().getFrontendChannelIfActive(frontendChannelId);
+        if (channel != null) {
+            channel.writeAndFlush(responseProxyContext).addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                } else {
+                    // 写响应报文异常，关闭上游连接
+                    future.channel().close();
+                }
+            });
         }
     }
 }

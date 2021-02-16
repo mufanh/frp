@@ -23,6 +23,11 @@ public class ProxyContext {
          * 上游IP地址
          */
         public static final String IP = "__IP";
+
+        /**
+         * 上游连接ID
+         */
+        public static final String CHANNEL_ID = "__CHANNEL_ID";
     }
 
     public static final ProxyContext HEARTBEAT = new ProxyContext(true);

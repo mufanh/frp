@@ -9,7 +9,7 @@ public interface InvokeManager {
 
     void addInvokeContext(ProxyContext context, long delay);
 
-    void removeInvokeContext(String msgId);
+    ProxyContext removeInvokeContext(String msgId);
 
     interface Aware {
 

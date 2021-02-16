@@ -23,6 +23,8 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
 
     private ConnectionManager connectionManager;
 
+    private BackendTryConnectManager backendTryConnectManager;
+
     private InvokeManager invokeManager;
 
     public DefaultProxyInvokeService(final FrpContext frpContext) {
@@ -55,6 +57,8 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
             sendToBackendChannel(channel, context);
             return;
         }
+
+        backendTryConnectManager.tryConnect(context.getAppName(), context.getProtocol(), address);
     }
 
     private void sendToBackendChannel(Channel channel, ProxyContext context) {
@@ -75,7 +79,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
             }
         });
 
-        channel.writeAndFlush(context.getPayload()).addListener((ChannelFutureListener) cf -> {
+        channel.writeAndFlush(context).addListener((ChannelFutureListener) cf -> {
             if (!cf.isSuccess()) {
                 invokeManager.removeInvokeContext(context.getMsgId());
 
