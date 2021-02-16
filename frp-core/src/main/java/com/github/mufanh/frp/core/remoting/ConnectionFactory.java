@@ -9,6 +9,10 @@ import io.netty.channel.Channel;
  * @author xinquan.huangxq
  */
 public interface ConnectionFactory extends LifeCycle {
+
+    /**
+     * NETTY高低水位设置
+     */
     String FEATURE_KEY_NETTY_BUFFER_LOW_WATERMARK = "NETTY_BUFFER_LOW_WATERMARK";
     String FEATURE_KEY_NETTY_BUFFER_HIGH_WATERMARK = "NETTY_BUFFER_HIGH_WATERMARK";
 

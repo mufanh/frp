@@ -4,7 +4,7 @@ import com.github.mufanh.frp.common.Cluster;
 import com.github.mufanh.frp.common.Rule;
 import com.github.mufanh.frp.common.RuleGroup;
 import com.github.mufanh.frp.core.ExchangeProxyContext;
-import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.github.mufanh.frp.core.config.ProxyRuleConfig;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultProxySelectService implements ProxySelectService {
 
-    private static final RouteRuleConfig config = RouteRuleConfig.getInstance();
+    private static final ProxyRuleConfig config = ProxyRuleConfig.getInstance();
 
     @Override
     public SelectResult select(ExchangeProxyContext context) {

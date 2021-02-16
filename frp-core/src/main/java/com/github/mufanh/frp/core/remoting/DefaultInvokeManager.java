@@ -35,7 +35,9 @@ public class DefaultInvokeManager implements InvokeManager {
     public ExchangeProxyContext removeInvokeContext(String msgId) {
         InvokeContext invokeContext = invokeContextMap.remove(msgId);
         if (invokeContext != null) {
-            invokeContext.getTimeout().cancel();
+            if (invokeContext.getTimeout() != null) {
+                invokeContext.getTimeout().cancel();
+            }
             return invokeContext.getContext();
         }
         return null;

@@ -5,10 +5,9 @@ import com.github.mufanh.frp.core.ErrCode;
 import com.github.mufanh.frp.core.ExceptionHandler;
 import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
-import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
 import com.github.mufanh.frp.core.task.TaskExecutor;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,8 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author xinquan.huangxq
  */
 @Slf4j
-@ChannelHandler.Sharable
-public class FrontendProxyHandler extends AbstractProxyHandler {
+public class FrontendHeartBeatHandler extends AbstractHeartBeatHandler {
 
     private final ConnectionManager connectionManager;
 
@@ -25,8 +23,8 @@ public class FrontendProxyHandler extends AbstractProxyHandler {
 
     private final TaskExecutor taskExecutor;
 
-    public FrontendProxyHandler(FrpContext frpContext, ProxyConfig proxyConfig) {
-        super(frpContext, proxyConfig);
+    public FrontendHeartBeatHandler(FrpContext frpContext, ProxyServerConfig proxyServerConfig) {
+        super(frpContext, proxyServerConfig);
 
         this.connectionManager = frpContext.getConnectionManager();
         this.proxyInvokeService = frpContext.getProxyInvokeService();
@@ -60,7 +58,9 @@ public class FrontendProxyHandler extends AbstractProxyHandler {
 
                     if (needCloseChannel(context)) {
                         Channel channel = connectionManager.removeFrontendChannel(ctx.channel().id());
-                        channel.close();
+                        if (channel != null) {
+                            channel.close();
+                        }
                     }
                 }
 

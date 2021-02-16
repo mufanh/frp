@@ -2,8 +2,8 @@ package com.github.mufanh.frp.core.remoting;
 
 import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.core.FrpContext;
-import com.github.mufanh.frp.core.config.ProxyConfig;
-import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
+import com.github.mufanh.frp.core.config.ProxyRuleConfig;
 import com.google.common.collect.Table;
 import io.netty.channel.*;
 import io.netty.handler.codec.DecoderException;
@@ -17,12 +17,21 @@ import java.util.Set;
 /**
  * @author xinquan.huangxq
  */
-@ChannelHandler.Sharable
 @Slf4j
-public class BackendConnectHandler extends AbstractProxyHandler {
+public class BackendConnectHandler extends AbstractHeartBeatHandler {
 
-    public BackendConnectHandler(FrpContext frpContext, ProxyConfig proxyConfig) {
-        super(frpContext, proxyConfig);
+    private final ProxyServerConfig proxyServerConfig;
+
+    private final ConnectionManager connectionManager;
+
+    private final BackendTryConnectManager backendTryConnectManager;
+
+    public BackendConnectHandler(FrpContext frpContext, ProxyServerConfig proxyServerConfig) {
+        super(frpContext, proxyServerConfig);
+
+        this.proxyServerConfig = proxyServerConfig;
+        this.connectionManager = frpContext.getConnectionManager();
+        this.backendTryConnectManager = frpContext.getBackendTryConnectManager();
     }
 
     @Override
@@ -86,24 +95,13 @@ public class BackendConnectHandler extends AbstractProxyHandler {
     }
 
     private void retryConnect(Channel channel) {
-        ConnectionManager connectionManager = frpContext.getConnectionManager();
-        if (connectionManager == null) {
-            log.error("连接管理器不存在，无法发起重连");
-            return;
-        }
-
         Address address = connectionManager.removeBackendChannel(channel);
         if (address != null) {
             Table<String/*appName*/, String/*protocol*/, Set<Address>> table =
-                    RouteRuleConfig.getInstance().getAvailableAddresses();
-            Set<Address> availableAddresses = table.get(proxyConfig.getAppName(), proxyConfig.getProtocol());
+                    ProxyRuleConfig.getInstance().getAvailableAddresses();
+            Set<Address> availableAddresses = table.get(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol());
             if (availableAddresses != null && availableAddresses.contains(address)) {
-                BackendTryConnectManager backendTryConnectManager = frpContext.getBackendTryConnectManager();
-                if (backendTryConnectManager == null) {
-                    log.error("重连管理器不存在，无法发起重连");
-                    return;
-                }
-                backendTryConnectManager.tryConnect(proxyConfig.getAppName(), proxyConfig.getProtocol(), address);
+                backendTryConnectManager.tryConnect(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol(), address);
             }
         }
     }

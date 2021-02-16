@@ -23,8 +23,6 @@ public interface ExchangeProxyContext extends ProxyContext {
      * 代理执行过程中的异常
      */
 
-    boolean isFailed();
-
     String setCode(String code);
 
     String getCode();

@@ -3,7 +3,7 @@ package com.github.mufanh.frp.core.remoting;
 import com.github.mufanh.frp.common.*;
 import com.github.mufanh.frp.core.*;
 import com.github.mufanh.frp.core.ErrCode;
-import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
 import com.github.mufanh.frp.core.service.ProxyRouteService;
 import com.github.mufanh.frp.core.service.RouteResult;
 import io.netty.channel.Channel;
@@ -36,6 +36,7 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
 
         proxyRouteService = frpContext.getProxyRouteService();
         connectionManager = frpContext.getConnectionManager();
+        backendTryConnectManager = frpContext.getBackendTryConnectManager();
         invokeManager = frpContext.getInvokeManager();
     }
 
@@ -61,9 +62,11 @@ public class DefaultProxyInvokeService extends AbstractLifeCycle implements Prox
     }
 
     private void sendToBackendChannel(Channel channel, ExchangeProxyContext context) {
-        ProxyConfig proxyConfig = frpContext.getProxyConfig(context.getAppName(), context.getProtocol());
+        // 获取代理服务配置
+        ProxyServerConfig proxyServerConfig = frpContext.getProxyConfig(context.getAppName(), context.getProtocol());
 
-        invokeManager.addInvokeContext(context, proxyConfig.getTimeout());
+        // 请求context记录
+        invokeManager.addInvokeContext(context, proxyServerConfig.getProxyInvokeTimeout());
 
         ExceptionHandler exceptionHandler = context.getExceptionHandler();
         context.setExceptionHandler(new AbstractExceptionHandler() {

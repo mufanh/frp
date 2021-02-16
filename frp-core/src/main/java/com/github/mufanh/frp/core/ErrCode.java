@@ -15,8 +15,6 @@ public enum ErrCode {
 
     PROXY_NONE_SERVICE("PROXY_NONE_SERVICE", "未找到可用服务"),
 
-    PROXY_NONE_BACKEND("PROXY_NONE_BACKEND", "未定义后端服务"),
-
     PROXY_ROUTE_ERROR("PROXY_ROUTE_ERROR", "代理服务执行异常"),
 
     PROXY_TIMEOUT("PROXY_TIMEOUT", "代理服务超时"),

@@ -1,7 +1,7 @@
 package com.github.mufanh.frp.core;
 
-import com.github.mufanh.frp.core.config.ProxyConfig;
-import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
+import com.github.mufanh.frp.core.config.ProxyRuleConfig;
 import com.github.mufanh.frp.core.extension.DefaultExtensionManager;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
 import com.github.mufanh.frp.core.remoting.*;
@@ -59,7 +59,7 @@ public class DefaultFrpContext extends AbstractLifeCycle implements FrpContext {
     @Setter
     private BackendTryConnectManager backendTryConnectManager;
 
-    private final Table<String, String, ProxyConfig> proxyConfigTable = HashBasedTable.create();
+    private final Table<String, String, ProxyServerConfig> proxyConfigTable = HashBasedTable.create();
 
     private final Table<String, String, BackendConnectionFactory> backendConnectionFactoryTable = HashBasedTable.create();
 
@@ -82,7 +82,6 @@ public class DefaultFrpContext extends AbstractLifeCycle implements FrpContext {
     public void start() throws LifeCycleException {
         super.start();
 
-        //extensionManager.start();
         proxyInvokeService.start();
         channelChooseService.start();
         channelHealthCheck.start();
@@ -99,20 +98,20 @@ public class DefaultFrpContext extends AbstractLifeCycle implements FrpContext {
     }
 
     @Override
-    public void addProxyService(ProxyConfig proxyConfig) {
+    public void addProxyService(ProxyServerConfig proxyServerConfig) {
         ensureNotStarted();
 
-        proxyConfigTable.put(proxyConfig.getAppName(), proxyConfig.getProtocol(), proxyConfig);
+        proxyConfigTable.put(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol(), proxyServerConfig);
 
-        frontendProxyServerTable.put(proxyConfig.getAppName(), proxyConfig.getProtocol(),
-                new FrontendProxyServer(proxyConfig, this));
-        backendConnectionFactoryTable.put(proxyConfig.getAppName(), proxyConfig.getProtocol(),
-                new BackendConnectionFactory(proxyConfig, this));
+        frontendProxyServerTable.put(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol(),
+                new FrontendProxyServer(proxyServerConfig, this));
+        backendConnectionFactoryTable.put(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol(),
+                new BackendConnectionFactory(proxyServerConfig, this));
 
         // 默认地址列表
-        if (CollectionUtils.isNotEmpty(proxyConfig.getDefaultAddresses())) {
-            RouteRuleConfig.getInstance().setDefaultConfig(
-                    proxyConfig.getAppName(), proxyConfig.getProtocol(), proxyConfig.getDefaultAddresses());
+        if (CollectionUtils.isNotEmpty(proxyServerConfig.getDefaultAddresses())) {
+            ProxyRuleConfig.getInstance().setDefaultConfig(
+                    proxyServerConfig.getAppName(), proxyServerConfig.getProtocol(), proxyServerConfig.getDefaultAddresses());
         }
     }
 
@@ -122,7 +121,7 @@ public class DefaultFrpContext extends AbstractLifeCycle implements FrpContext {
     }
 
     @Override
-    public ProxyConfig getProxyConfig(String appName, String protocol) {
+    public ProxyServerConfig getProxyConfig(String appName, String protocol) {
         return proxyConfigTable.get(appName, protocol);
     }
 }

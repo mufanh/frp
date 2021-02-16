@@ -1,7 +1,6 @@
 package com.github.mufanh.frp.core.config;
 
 import com.github.mufanh.frp.common.Address;
-import com.github.mufanh.frp.common.Rule;
 import com.github.mufanh.frp.common.RuleGroup;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  * @author xinquan.huangxq
  */
 @Slf4j
-public class RouteRuleConfig {
+public class ProxyRuleConfig {
 
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
@@ -169,14 +168,14 @@ public class RouteRuleConfig {
         }
     }
 
-    public static RouteRuleConfig getInstance() {
+    public static ProxyRuleConfig getInstance() {
         return RouteRuleConfigInstanceHolder.instance;
     }
 
-    private RouteRuleConfig() {
+    private ProxyRuleConfig() {
     }
 
     private static class RouteRuleConfigInstanceHolder {
-        private static final RouteRuleConfig instance = new RouteRuleConfig();
+        private static final ProxyRuleConfig instance = new ProxyRuleConfig();
     }
 }

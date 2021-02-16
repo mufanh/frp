@@ -9,6 +9,9 @@ import java.util.Map;
  */
 public class DefaultExchangeProxyContext implements ExchangeProxyContext {
 
+    /**
+     * 经过服务解码器后获取的context（该context内容由接入服务业务方定义）
+     */
     private final ProxyContext proxyContext;
 
     private String appName;
@@ -48,18 +51,13 @@ public class DefaultExchangeProxyContext implements ExchangeProxyContext {
     }
 
     @Override
-    public boolean isFailed() {
-        return exception != null;
-    }
-
-    @Override
     public String setCode(String code) {
-        return null;
+        return code;
     }
 
     @Override
     public String getCode() {
-        return null;
+        return code;
     }
 
     @Override

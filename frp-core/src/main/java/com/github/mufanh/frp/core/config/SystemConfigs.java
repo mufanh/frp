@@ -28,8 +28,14 @@ public enum SystemConfigs {
     TASK_EXECUTOR_MAX_POOL_SIZE("frp.executor.max.pool.size", 1024),
     TASK_EXECUTOR_KEEP_ALIVE("frp.executor.keepalive", 600L),
 
+    /**
+     * 默认负载地址
+     */
     DEFAULT_LOAD_BALANCE("frp.default.load.balance", RandomLoadBalance.class.getName()),
 
+    /**
+     * 后端连接重试次数
+     */
     BACKEND_TRY_CONNECT_TIMES("frp.backend.try.connect.times", 3),
 
     /**

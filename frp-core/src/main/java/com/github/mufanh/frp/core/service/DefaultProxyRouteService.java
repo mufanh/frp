@@ -6,7 +6,7 @@ import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.ExchangeProxyContext;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
-import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.github.mufanh.frp.core.config.ProxyRuleConfig;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class DefaultProxyRouteService extends AbstractLifeCycle implements ProxyRouteService {
 
-    private static final RouteRuleConfig config = RouteRuleConfig.getInstance();
+    private static final ProxyRuleConfig config = ProxyRuleConfig.getInstance();
 
     private final FrpContext frpContext;
 

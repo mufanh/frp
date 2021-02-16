@@ -4,7 +4,7 @@ import com.github.mufanh.frp.common.extension.Protocol;
 import com.github.mufanh.frp.common.extension.ProxyContext;
 import com.github.mufanh.frp.common.extension.ProxyContextFactory;
 import com.github.mufanh.frp.core.*;
-import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,42 +18,38 @@ import java.util.List;
  */
 public class ExchangeProxyContextBuilder extends MessageToMessageDecoder<ProxyContext> {
 
-    private final FrpContext frpContext;
+    private final ProxyServerConfig proxyServerConfig;
 
-    private final ProxyConfig proxyConfig;
+    private final ExtensionManager extensionManager;
 
-    public ExchangeProxyContextBuilder(final FrpContext frpContext, final ProxyConfig proxyConfig) {
-        this.frpContext = frpContext;
-        this.proxyConfig = proxyConfig;
+    public ExchangeProxyContextBuilder(final FrpContext frpContext, final ProxyServerConfig proxyServerConfig) {
+        this.proxyServerConfig = proxyServerConfig;
+        this.extensionManager = frpContext.getExtensionManager();
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ProxyContext context, List<Object> out) throws Exception {
         ExchangeProxyContext exchangeProxyContext = new DefaultExchangeProxyContext(context);
 
-        exchangeProxyContext.setAppName(proxyConfig.getAppName());
-        exchangeProxyContext.setProtocol(proxyConfig.getProtocol());
+        exchangeProxyContext.setAppName(proxyServerConfig.getAppName());
+        exchangeProxyContext.setProtocol(proxyServerConfig.getProtocol());
 
         exchangeProxyContext.setHeader(ExchangeProxyContext.HEADER_LOAD_BALANCE_TYPE,
                 prepareLoadBalanceType());
-        exchangeProxyContext.setExceptionHandler(prepareExceptionHandler(context, ctx.channel()));
+        exchangeProxyContext.setExceptionHandler(prepareExceptionHandler(ctx.channel()));
 
         out.add(exchangeProxyContext);
     }
 
-    private ExceptionHandler prepareExceptionHandler(ProxyContext context, Channel channel) {
-        ExtensionManager extensionManager = frpContext.getExtensionManager();
-        if (extensionManager == null) {
-            return createExceptionHandler(context, channel, null);
-        }
-        Protocol protocol = extensionManager.protocol(proxyConfig.getAppName(), proxyConfig.getProtocol());
+    private ExceptionHandler prepareExceptionHandler(Channel channel) {
+        Protocol protocol = extensionManager.protocol(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol());
         if (protocol == null) {
-            return createExceptionHandler(context, channel, null);
+            return createExceptionHandler(channel, null);
         }
-        return createExceptionHandler(context, channel, protocol.newProxyContextFactory());
+        return createExceptionHandler(channel, protocol.newProxyContextFactory());
     }
 
-    private ExceptionHandler createExceptionHandler(ProxyContext context, Channel channel, ProxyContextFactory proxyContextFactory) {
+    private ExceptionHandler createExceptionHandler(Channel channel, ProxyContextFactory proxyContextFactory) {
         return new AbstractExceptionHandler() {
             @Override
             protected void response(ExchangeProxyContext context) {
@@ -65,12 +61,14 @@ public class ExchangeProxyContextBuilder extends MessageToMessageDecoder<ProxyCo
                     ProxyContext responseContext = proxyContextFactory.createFailureProxyContext(
                             context, context.getCode(), context.getMessage());
                     if (responseContext != null) {
-                        channel.writeAndFlush(responseContext);
+                        if (channel.isActive()) {
+                            channel.writeAndFlush(responseContext);
+                        }
                         return;
                     }
                 }
 
-                // 理论上来说不会走到这里，但是若协议没有定义，则用默认的
+                // 理论上来说不会走到这里，但是若协议没有定义，或者错误，则用默认的
                 context.setPayload(String.format("{\"msgId\":\"%s\"," +
                                 "\"code\":\"%s\"," +
                                 "\"message\":\"%s\"}",
@@ -81,12 +79,12 @@ public class ExchangeProxyContextBuilder extends MessageToMessageDecoder<ProxyCo
     }
 
     private String prepareLoadBalanceType() {
-        if (StringUtils.isBlank(proxyConfig.getLoadBalanceType())) {
+        if (StringUtils.isBlank(proxyServerConfig.getLoadBalanceType())) {
             return null;
         }
-        if (StringUtils.isNotBlank(proxyConfig.getLoadBalancePluginId())) {
-            return proxyConfig.getLoadBalanceType() + "@" + proxyConfig.getLoadBalancePluginId();
+        if (StringUtils.isNotBlank(proxyServerConfig.getLoadBalancePluginId())) {
+            return proxyServerConfig.getLoadBalanceType() + "@" + proxyServerConfig.getLoadBalancePluginId();
         }
-        return proxyConfig.getLoadBalanceType();
+        return proxyServerConfig.getLoadBalanceType();
     }
 }

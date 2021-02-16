@@ -4,7 +4,7 @@ import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
-import com.github.mufanh.frp.core.config.RouteRuleConfig;
+import com.github.mufanh.frp.core.config.ProxyRuleConfig;
 import com.github.mufanh.frp.core.config.SystemConfigs;
 import com.github.mufanh.frp.core.task.TaskExecutor;
 import com.google.common.collect.Table;
@@ -82,7 +82,7 @@ public class DefaultBackendTryConnectManager extends AbstractLifeCycle implement
     public synchronized void publishConfigThenTryConnectAll() {
         Set<Address> backendChannelAddresses = connectionManager.backendChannelAddresses();
 
-        Table<String/*appName*/, String/*protocol*/, Set<Address>> availableAddresses = RouteRuleConfig.getInstance().getAvailableAddresses();
+        Table<String/*appName*/, String/*protocol*/, Set<Address>> availableAddresses = ProxyRuleConfig.getInstance().getAvailableAddresses();
         for (Table.Cell<String, String, Set<Address>> cell : availableAddresses.cellSet()) {
             ConnectionFactory connectionFactory = frpContext.getConnectionFactory(cell.getRowKey(), cell.getColumnKey());
             if (connectionFactory == null) {

@@ -1,6 +1,6 @@
 package com.github.mufanh.frp.core;
 
-import com.github.mufanh.frp.core.config.ProxyConfig;
+import com.github.mufanh.frp.core.config.ProxyServerConfig;
 import com.github.mufanh.frp.core.extension.ExtensionManager;
 import com.github.mufanh.frp.core.remoting.*;
 import com.github.mufanh.frp.core.service.ChannelChooseService;
@@ -26,9 +26,9 @@ public interface FrpContext extends LifeCycle
         , BackendTryConnectManager.Aware
         , ExtensionManager.Aware {
 
-    void addProxyService(ProxyConfig proxyConfig);
+    void addProxyService(ProxyServerConfig proxyServerConfig);
 
     ConnectionFactory getConnectionFactory(String appName, String protocol);
 
-    ProxyConfig getProxyConfig(String appName, String protocol);
+    ProxyServerConfig getProxyConfig(String appName, String protocol);
 }

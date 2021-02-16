@@ -15,10 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class BackendProxyHandler extends ChannelDuplexHandler {
 
-    private final FrpContext frpContext;
+    private final InvokeManager invokeManager;
+
+    private final ConnectionManager connectionManager;
 
     public BackendProxyHandler(final FrpContext frpContext) {
-        this.frpContext = frpContext;
+        this.invokeManager = frpContext.getInvokeManager();
+        this.connectionManager = frpContext.getConnectionManager();
     }
 
     @Override
@@ -39,8 +42,7 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
             throw new ProxyException(ErrCode.PROXY_BACKEND_ERROR, "代理服务响应报文不合法，丢失消息唯一标识");
         }
 
-        ProxyContext requestProxyContext = frpContext.getInvokeManager()
-                .removeInvokeContext(responseProxyContext.getMsgId());
+        ProxyContext requestProxyContext = invokeManager.removeInvokeContext(responseProxyContext.getMsgId());
         if (requestProxyContext == null) {
             // 服务超时，可以已经释放了
             return;
@@ -50,7 +52,7 @@ public class BackendProxyHandler extends ChannelDuplexHandler {
         if (frontendChannelId == null) {
             return;
         }
-        Channel channel = frpContext.getConnectionManager().getFrontendChannelIfActive(frontendChannelId);
+        Channel channel = connectionManager.getFrontendChannelIfActive(frontendChannelId);
         if (channel != null) {
             channel.writeAndFlush(responseProxyContext).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {

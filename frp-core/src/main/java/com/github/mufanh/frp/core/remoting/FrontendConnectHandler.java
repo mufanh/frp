@@ -12,7 +12,6 @@ import java.io.IOException;
 /**
  * @author xinquan.huangxq
  */
-@ChannelHandler.Sharable
 @Slf4j
 public class FrontendConnectHandler extends ChannelDuplexHandler {
 
