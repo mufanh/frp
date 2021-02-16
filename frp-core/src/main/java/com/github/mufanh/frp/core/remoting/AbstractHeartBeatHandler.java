@@ -25,7 +25,7 @@ public abstract class AbstractHeartBeatHandler extends ChannelDuplexHandler {
         if (extensionManager == null) {
             throw new IllegalStateException("代理执行容器未配置完成，无法正常使用");
         }
-        this.protocol = extensionManager.protocol(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol());
+        this.protocol = extensionManager.protocol(proxyServerConfig.getProtocolType(), proxyServerConfig.getProtocolPluginId());
         if (this.protocol == null) {
             throw new IllegalArgumentException("代理服务配置错误，无法找到正确的服务协议");
         }

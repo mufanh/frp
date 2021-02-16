@@ -42,7 +42,7 @@ public class ExchangeProxyContextBuilder extends MessageToMessageDecoder<ProxyCo
     }
 
     private ExceptionHandler prepareExceptionHandler(Channel channel) {
-        Protocol protocol = extensionManager.protocol(proxyServerConfig.getAppName(), proxyServerConfig.getProtocol());
+        Protocol protocol = extensionManager.protocol(proxyServerConfig.getProtocolType(), proxyServerConfig.getProtocolPluginId());
         if (protocol == null) {
             return createExceptionHandler(channel, null);
         }
