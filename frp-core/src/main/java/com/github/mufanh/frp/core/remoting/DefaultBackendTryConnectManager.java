@@ -4,10 +4,16 @@ import com.github.mufanh.frp.common.Address;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.FrpContext;
 import com.github.mufanh.frp.core.LifeCycleException;
+import com.github.mufanh.frp.core.config.RouteRuleConfig;
 import com.github.mufanh.frp.core.config.SystemConfigs;
 import com.github.mufanh.frp.core.task.TaskExecutor;
+import com.google.common.collect.Table;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author xinquan.huangxq
@@ -31,6 +37,9 @@ public class DefaultBackendTryConnectManager extends AbstractLifeCycle implement
 
         connectionManager = frpContext.getConnectionManager();
         taskExecutor = frpContext.getTaskExecutor();
+
+        // 初始化后发起重连一次
+        publishConfigThenTryConnectAll();
     }
 
     @Override
@@ -70,7 +79,22 @@ public class DefaultBackendTryConnectManager extends AbstractLifeCycle implement
     }
 
     @Override
-    public void publishConfigThenTryConnectAll() {
+    public synchronized void publishConfigThenTryConnectAll() {
+        Set<Address> backendChannelAddresses = connectionManager.backendChannelAddresses();
 
+        Table<String/*appName*/, String/*protocol*/, Set<Address>> availableAddresses = RouteRuleConfig.getInstance().getAvailableAddresses();
+        for (Table.Cell<String, String, Set<Address>> cell : availableAddresses.cellSet()) {
+            ConnectionFactory connectionFactory = frpContext.getConnectionFactory(cell.getRowKey(), cell.getColumnKey());
+            if (connectionFactory == null) {
+                log.warn("应用{}，协议{}没有配置后端连接服务", cell.getRowKey(), cell.getColumnKey());
+                return;
+            }
+
+            Optional.ofNullable(cell.getValue())
+                    .orElse(Collections.emptySet())
+                    .forEach(address -> {
+                        tryConnect(cell.getRowKey(), cell.getColumnKey(), address);
+                    });
+        }
     }
 }

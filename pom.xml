@@ -32,7 +32,7 @@
         <skip_maven_deploy>true</skip_maven_deploy>
 
         <!-- dependencies -->
-        <lombok.version>1.18.12</lombok.version>
+        <lombok.version>1.18.4</lombok.version>
         <junit.version>4.13.1</junit.version>
         <slf4j.version>1.7.30</slf4j.version>
         <pf4j.version>3.5.0</pf4j.version>

@@ -5,6 +5,7 @@ import com.github.mufanh.frp.common.extension.LoadBalance;
 import com.github.mufanh.frp.core.AbstractLifeCycle;
 import com.github.mufanh.frp.core.LifeCycleException;
 import com.github.mufanh.frp.core.config.SystemConfigs;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.*;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,19 +25,14 @@ import java.util.stream.Collectors;
  */
 public class DefaultExtensionManager extends AbstractLifeCycle implements ExtensionManager {
 
+    private final Map<String/*extensionClass@pluginId*/, List<?>> extensionsCache = Maps.newConcurrentMap();
+
     private final PluginManager pluginManager;
 
     private final List<Path> pluginPaths;
 
     public DefaultExtensionManager() {
-        this.pluginManager = new DefaultPluginManager() {
-            @Override
-            protected ExtensionFinder createExtensionFinder() {
-                DefaultExtensionFinder extensionFinder = (DefaultExtensionFinder) super.createExtensionFinder();
-                extensionFinder.addServiceProviderExtensionFinder();
-                return extensionFinder;
-            }
-        };
+        this.pluginManager = new DefaultPluginManager();
         this.pluginPaths = preparePluginPaths();
 
         // 初始化后直接启动
@@ -106,15 +103,27 @@ public class DefaultExtensionManager extends AbstractLifeCycle implements Extens
         return null;
     }
 
-    @Override
-    public <T extends ExtensionPoint> List<T> getExtensions(Class<T> type) {
-        ensureStarted();
-        return pluginManager.getExtensions(type);
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends ExtensionPoint> List<T> getExtensions(Class<T> type, String pluginId) {
         ensureStarted();
-        return pluginManager.getExtensions(type, pluginId);
+
+        String key = extensionsCacheKey(type, pluginId);
+        List<?> cachedExtensions = extensionsCache.get(key);
+        if (cachedExtensions != null) {
+            return (List<T>) cachedExtensions;
+        }
+
+        List<T> extensions = pluginManager.getExtensions(type, pluginId);
+        List<?> lastExtensions = extensionsCache.putIfAbsent(key, extensions);
+        if (lastExtensions == null) {
+            return extensions;
+        } else {
+            return (List<T>) lastExtensions;
+        }
+    }
+
+    private static String extensionsCacheKey(Class<?> type, String pluginId) {
+        return type.getName() + "@" + pluginId;
     }
 }

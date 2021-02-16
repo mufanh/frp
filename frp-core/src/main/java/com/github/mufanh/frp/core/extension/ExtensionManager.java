@@ -34,15 +34,6 @@ public interface ExtensionManager extends LifeCycle {
      * 获取扩展插件
      *
      * @param type
-     * @param <T>
-     * @return
-     */
-    <T extends ExtensionPoint> List<T> getExtensions(Class<T> type);
-
-    /**
-     * 获取扩展插件
-     *
-     * @param type
      * @param pluginId
      * @param <T>
      * @return
